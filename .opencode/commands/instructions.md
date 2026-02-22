@@ -1,7 +1,7 @@
 ---
 description: Show project instructions and guidelines
 agent: explore
-model: anthropic/claude-sonnet-4-20250514
+model: opencode/big-pickle
 ---
 
 Read and display the contents of INSTRUCTIONS.md and AGENTS.md from the current project directory. Summarize the key information including:

@@ -4,6 +4,20 @@
 
 This is a fully functional MCP (Model Context Protocol) server for Apache Solr in PHP that handles job and company data from peviitor_core.
 
+## Documentation Policy
+
+**IMPORTANT:** Any changes to project files must be documented in this file (INSTRUCTIONS.md) and AGENTS.md.
+
+When making changes to:
+- PHP functions in `src/functions.php` or `mcp-server.php`
+- Configuration (environment variables, Docker, OpenCode)
+- Available operations or data models
+- File structure
+
+You MUST update the relevant documentation sections:
+- **INSTRUCTIONS.md** - Project overview, operations, configuration
+- **AGENTS.md** - Developer guidelines, code style, testing
+
 ## File Structure
 
 ```
@@ -77,12 +91,23 @@ Environment variables (with defaults):
 - `SOLR_PASS` - Solr password (default: SolrRocks)
 - `SOLR_SCHEME` - http or https (default: http)
 
-## Docker
+## Docker Requirements
 
-Build and run:
+### Prerequisites
+1. **Docker** must be running
+2. **Solr container** must be running (e.g., `peviitor-solr`)
+3. **mcp-solr image** must be built
+
+### Build and Run
 ```bash
 # Build the image
 docker build -t mcp-solr .
+
+# Check if Solr is running
+docker ps | grep solr
+
+# Start Solr if not running
+docker start peviitor-solr
 
 # Run with Docker (IMPORTANT: use -i flag for interactive STDIN)
 docker run --rm -i -e SOLR_HOST=solr -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
@@ -90,6 +115,11 @@ docker run --rm -i -e SOLR_HOST=solr -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR
 # Test with JSON-RPC request
 echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | docker run --rm -i mcp-solr
 ```
+
+### Important Notes
+- MCP Solr connects to Solr at `solr:8983` (docker network)
+- Without Solr running, MCP tools will return connection errors
+- Keep Solr container running while using OpenCode with MCP Solr
 
 ## Local Development
 
@@ -117,15 +147,17 @@ The project includes `opencode.json` with MCP configuration:
       "type": "local",
       "command": ["docker", "run", "--rm", "-i", "-e", "SOLR_HOST=solr", "-e", "SOLR_PORT=8983", "-e", "SOLR_USER=solr", "-e", "SOLR_PASS=SolrRocks", "mcp-solr"],
       "enabled": true
-    },
-    "chrome-devtools": {
-      "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp"],
-      "enabled": true
     }
   }
 }
 ```
+
+Note: `chrome-devtools` is defined globally in `~/.config/opencode/opencode.json` and does not need to be repeated here.
+
+### Custom Commands
+
+The project includes custom commands defined in `.opencode/commands/instructions.md`:
+- `/instructions` - Shows project instructions and guidelines
 
 Restart OpenCode after configuration changes.
 
@@ -146,3 +178,12 @@ Example response:
 ```json
 {"jsonrpc": "2.0", "id": 1, "result": {...}}
 ```
+
+## Changelog
+
+### 2026-02-22
+- Created `opencode.json` with MCP configuration for mcp-solr
+- Updated `.opencode/commands/instructions.md` to use `opencode/big-pickle` model
+- Added Docker requirements section to INSTRUCTIONS.md and AGENTS.md
+- Started Solr container (`peviitor-solr`) for MCP connectivity
+- Configured `chrome-devtools` globally in `~/.config/opencode/opencode.json`

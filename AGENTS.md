@@ -3,12 +3,31 @@
 ## Project Overview
 This is an MCP (Model Context Protocol) server for Apache Solr in PHP. It manages Job and Company data from peviitor_core.
 
+## Documentation Policy
+
+**IMPORTANT:** Any changes to project files must be documented in INSTRUCTIONS.md and this file (AGENTS.md).
+
+When making changes to:
+- PHP functions in `src/functions.php` or `mcp-server.php`
+- Configuration (environment variables, Docker, OpenCode)
+- Available operations or data models
+- File structure
+
+You MUST update the relevant documentation sections and add an entry to the Changelog.
+
 ## Quick Start
 ```bash
+# Prerequisites: Docker must be running
+# Ensure Solr container is running before using MCP
+docker ps | grep solr
+
+# Start Solr if not running
+docker start peviitor-solr
+
 # Build Docker image
 docker build -t mcp-solr .
 
-# Run MCP server
+# Run MCP server (requires Solr to be running)
 docker run -e SOLR_HOST=solr -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
 
 # Run locally (requires PHP 8.2+)
@@ -138,3 +157,32 @@ docker run -e SOLR_HOST=my-solr -e SOLR_USER=admin -e SOLR_PASS=secret mcp-solr
 # Connect to Solr on host network
 docker run --network host mcp-solr
 ```
+
+### Important: Solr Must Be Running
+
+Before using MCP Solr tools:
+1. **Docker must be running** on the system
+2. **Solr container must be running** (e.g., `peviitor-solr`)
+3. **mcp-solr image must be built**
+
+```bash
+# Check running containers
+docker ps | grep solr
+
+# Start Solr if stopped
+docker start peviitor-solr
+
+# Verify Solr is accessible
+curl -s http://localhost:8983/solr/admin/ping
+```
+
+MCP Solr connects to Solr at `solr:8983` (docker network). If Solr is not running, MCP tools will fail with connection errors.
+
+## Changelog
+
+### 2026-02-22
+- Created `opencode.json` with MCP configuration for mcp-solr
+- Updated `.opencode/commands/instructions.md` to use `opencode/big-pickle` model
+- Added Docker requirements section (Solr must be running for MCP connectivity)
+- Started Solr container (`peviitor-solr`)
+- `chrome-devtools` configured globally in `~/.config/opencode/opencode.json`
