@@ -97,6 +97,87 @@ function mcp_error($message)
  * function from functions.php.
  */
 $methods = [
+    // MCP Protocol Methods
+    'initialize' => function($params) {
+        return [
+            'protocolVersion' => '2024-11-05',
+            'capabilities' => [
+                'tools' => (object)[],
+            ],
+            'serverInfo' => [
+                'name' => 'mcp-solr',
+                'version' => '1.0.0',
+            ],
+        ];
+    },
+    
+    'tools/list' => function($params) {
+        global $methods;
+        $tools = [];
+        
+        $toolDefinitions = [
+            'job_select' => 'Search jobs with flexible queries',
+            'job_search' => 'Search jobs with common filters',
+            'job_insert' => 'Insert a new job (url is required)',
+            'job_index' => 'Alias for job_insert',
+            'job_delete' => 'Delete a job by url',
+            'job_update' => 'Update job fields by url',
+            'job_get' => 'Get a job by url',
+            'company_select' => 'Search companies',
+            'company_search' => 'Search companies with common filters',
+            'company_insert' => 'Insert a new company (id is required)',
+            'company_index' => 'Alias for company_insert',
+            'company_delete' => 'Delete a company by id',
+            'company_update' => 'Update company fields by id',
+            'company_get' => 'Get a company by id',
+        ];
+        
+        foreach ($toolDefinitions as $name => $description) {
+            $tools[] = [
+                'name' => $name,
+                'description' => $description,
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => ($name === 'job_insert' || $name === 'job_index' || $name === 'company_insert' || $name === 'company_index') ? [
+                        'url' => ['type' => 'string', 'description' => 'Job URL (unique key)'],
+                        'title' => ['type' => 'string', 'description' => 'Job title'],
+                        'company' => ['type' => 'string', 'description' => 'Company name'],
+                        'location' => ['type' => 'array', 'description' => 'Job locations'],
+                        'tags' => ['type' => 'array', 'description' => 'Skill tags'],
+                        'workmode' => ['type' => 'string', 'description' => 'Work mode (remote, on-site, hybrid)'],
+                        'salary' => ['type' => 'string', 'description' => 'Salary range'],
+                        'description' => ['type' => 'string', 'description' => 'Job description'],
+                    ] : (in_array($name, ['job_delete', 'job_get']) ? [
+                        'url' => ['type' => 'string', 'description' => 'Job URL'],
+                    ] : (in_array($name, ['company_delete', 'company_get']) ? [
+                        'id' => ['type' => 'string', 'description' => 'Company ID/CIF'],
+                    ] : (in_array($name, ['job_update', 'company_update']) ? [
+                        'url' => ['type' => 'string', 'description' => 'Job URL'],
+                        'id' => ['type' => 'string', 'description' => 'Company ID'],
+                        'fields' => ['type' => 'object', 'description' => 'Fields to update'],
+                    ] : [
+                        'query' => ['type' => 'string', 'description' => 'Search query'],
+                        'term' => ['type' => 'string', 'description' => 'Search term'],
+                        'start' => ['type' => 'integer', 'description' => 'Start index'],
+                        'rows' => ['type' => 'integer', 'description' => 'Number of results'],
+                        'offset' => ['type' => 'integer', 'description' => 'Offset'],
+                        'limit' => ['type' => 'integer', 'description' => 'Limit results'],
+                        'filters' => ['type' => 'object', 'description' => 'Filter criteria'],
+                        'status' => ['type' => 'string', 'description' => 'Job/Company status'],
+                        'company' => ['type' => 'string', 'description' => 'Company name'],
+                        'workmode' => ['type' => 'string', 'description' => 'Work mode'],
+                        'location' => ['type' => 'string', 'description' => 'Location'],
+                    ]))),
+                ],
+            ];
+        }
+        
+        return ['tools' => $tools];
+    },
+    
+    'ping' => function($params) {
+        return [];
+    },
     /**
      * Search for jobs in Solr
      * 

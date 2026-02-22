@@ -50,10 +50,15 @@ define('SOLR_SCHEME', getenv('SOLR_SCHEME') ?: 'http');
  * @param array|null $data Optional data to send in POST requests
  * @return array           Response data or error array
  */
-function solr_request($core, $method, $endpoint, $data = null)
+function solr_request($core, $method, $endpoint, $data = null, $commit = false)
 {
     // Build the full URL: scheme://host:port/solr/core/endpoint
     $url = SOLR_SCHEME . '://' . SOLR_HOST . ':' . SOLR_PORT . '/solr/' . $core . $endpoint;
+    
+    // Add commit parameter if requested
+    if ($commit) {
+        $url .= (strpos($url, '?') !== false ? '&' : '?') . 'commit=true';
+    }
     
     // Initialize cURL handle for HTTP requests
     $ch = curl_init();
@@ -236,8 +241,10 @@ function job_insert($data)
         'add' => ['doc' => $doc, 'boost' => 1, 'overwrite' => true, 'commitWithin' => 1000],
     ];
     
-    // Execute POST request to /solr/job/update endpoint
-    return solr_request('job', 'POST', '/update', $payload);
+    $result = solr_request('job', 'POST', '/update', $payload);
+    solr_request('job', 'POST', '/update', null, true);
+    
+    return $result;
 }
 
 
@@ -270,11 +277,15 @@ function job_delete($url)
     // Uses solr_escape to properly escape the value for Solr queries
     $payload = [
         'delete' => ['query' => 'url:' . solr_escape($url)],
-        'commit' => true,  // Commit immediately after delete
     ];
     
     // Execute POST request to /solr/job/update endpoint
-    return solr_request('job', 'POST', '/update', $payload);
+    $result = solr_request('job', 'POST', '/update', $payload);
+    
+    // Commit after delete
+    solr_request('job', 'POST', '/update', null, true);
+    
+    return $result;
 }
 
 
@@ -300,12 +311,13 @@ function job_update($url, $fields)
     
     // Build the update payload with commit to ensure changes are visible
     $payload = [
-        'add' => ['doc' => $doc, 'overwrite' => true],
-        'commit' => true,
+        'add' => ['doc' => $doc, 'overwrite' => true, 'commitWithin' => 1000],
     ];
     
-    // Execute POST request to /solr/job/update endpoint
-    return solr_request('job', 'POST', '/update', $payload);
+    $result = solr_request('job', 'POST', '/update', $payload);
+    solr_request('job', 'POST', '/update', null, true);
+    
+    return $result;
 }
 
 
@@ -439,11 +451,12 @@ function company_delete($id)
     // Build the delete payload using ID (CIF) as the unique identifier
     $payload = [
         'delete' => ['query' => 'id:' . solr_escape($id)],
-        'commit' => true,
     ];
     
-    // Execute POST request to /solr/company/update endpoint
-    return solr_request('company', 'POST', '/update', $payload);
+    $result = solr_request('company', 'POST', '/update', $payload);
+    solr_request('company', 'POST', '/update', null, true);
+    
+    return $result;
 }
 
 
@@ -468,12 +481,13 @@ function company_update($id, $fields)
     
     // Build the update payload
     $payload = [
-        'add' => ['doc' => $doc, 'overwrite' => true],
-        'commit' => true,
+        'add' => ['doc' => $doc, 'overwrite' => true, 'commitWithin' => 1000],
     ];
     
-    // Execute POST request to /solr/company/update endpoint
-    return solr_request('company', 'POST', '/update', $payload);
+    $result = solr_request('company', 'POST', '/update', $payload);
+    solr_request('company', 'POST', '/update', null, true);
+    
+    return $result;
 }
 
 
