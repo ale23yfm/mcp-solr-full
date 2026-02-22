@@ -31,7 +31,8 @@ docker start peviitor-solr
 docker build -t mcp-solr .
 
 # Run MCP server (requires Solr to be running)
-docker run -e SOLR_HOST=solr -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+# IMPORTANT: Use --network host and SOLR_HOST=127.0.0.1 to connect to localhost Solr
+docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
 
 # Run locally (requires PHP 8.2+)
 php mcp-server.php
@@ -154,11 +155,8 @@ echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | php m
 # Build the image
 docker build -t mcp-solr .
 
-# Run with custom Solr connection
-docker run -e SOLR_HOST=my-solr -e SOLR_USER=admin -e SOLR_PASS=secret mcp-solr
-
-# Connect to Solr on host network
-docker run --network host mcp-solr
+# Run with custom Solr connection (host network required for localhost)
+docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
 ```
 
 ### Important: Solr Must Be Running
@@ -179,7 +177,7 @@ docker start peviitor-solr
 curl -s http://localhost:8983/solr/admin/ping
 ```
 
-MCP Solr connects to Solr at `solr:8983` (docker network). If Solr is not running, MCP tools will fail with connection errors.
+MCP Solr connects to Solr at `127.0.0.1:8983` using Docker host network. If Solr is not running, MCP tools will fail with connection errors.
 
 ## Changelog
 
@@ -191,3 +189,4 @@ MCP Solr connects to Solr at `solr:8983` (docker network). If Solr is not runnin
 - `chrome-devtools` configured globally in `~/.config/opencode/opencode.json`
 - Added Documentation Policy section
 - Added GitHub Pages deployment with MkDocs
+- Fixed MCP error -32601 by using `--network host` and `SOLR_HOST=127.0.0.1`

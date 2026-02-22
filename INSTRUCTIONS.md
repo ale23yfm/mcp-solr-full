@@ -110,15 +110,15 @@ docker ps | grep solr
 # Start Solr if not running
 docker start peviitor-solr
 
-# Run with Docker (IMPORTANT: use -i flag for interactive STDIN)
-docker run --rm -i -e SOLR_HOST=solr -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+# Run with Docker (IMPORTANT: use -i flag for interactive STDIN, --network host to connect to localhost)
+docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
 
 # Test with JSON-RPC request
-echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | docker run --rm -i mcp-solr
+echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr
 ```
 
 ### Important Notes
-- MCP Solr connects to Solr at `solr:8983` (docker network)
+- MCP Solr connects to Solr at `127.0.0.1:8983` using Docker host network (`--network host`)
 - Without Solr running, MCP tools will return connection errors
 - Keep Solr container running while using OpenCode with MCP Solr
 
@@ -146,7 +146,7 @@ The project includes `opencode.json` with MCP configuration:
   "mcp": {
     "mcp-solr": {
       "type": "local",
-      "command": ["docker", "run", "--rm", "-i", "-e", "SOLR_HOST=solr", "-e", "SOLR_PORT=8983", "-e", "SOLR_USER=solr", "-e", "SOLR_PASS=SolrRocks", "mcp-solr"],
+      "command": ["docker", "run", "--rm", "-i", "--network", "host", "-e", "SOLR_HOST=127.0.0.1", "-e", "SOLR_PORT=8983", "-e", "SOLR_USER=solr", "-e", "SOLR_PASS=SolrRocks", "mcp-solr"],
       "enabled": true
     }
   }
@@ -211,6 +211,7 @@ mkdocs serve
 - Updated `.opencode/commands/instructions.md` to use `opencode/big-pickle` model
 - Added Docker requirements section to INSTRUCTIONS.md and AGENTS.md
 - Started Solr container (`peviitor-solr`) for MCP connectivity
-- Configured `chrome-devtools` globally in `~/.config/opencode/opencode.json`
+- `chrome-devtools` configured globally in `~/.config/opencode/opencode.json`
 - Added Documentation Policy section
 - Added GitHub Pages deployment with MkDocs
+- Fixed MCP error -32601 by using `--network host` and `SOLR_HOST=127.0.0.1`

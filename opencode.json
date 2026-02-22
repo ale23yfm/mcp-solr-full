@@ -3,7 +3,7 @@
   "mcp": {
     "mcp-solr": {
       "type": "local",
-      "command": ["docker", "run", "--rm", "-i", "-e", "SOLR_HOST=solr", "-e", "SOLR_PORT=8983", "-e", "SOLR_USER=solr", "-e", "SOLR_PASS=SolrRocks", "mcp-solr"],
+      "command": ["docker", "run", "--rm", "-i", "--network", "host", "-e", "SOLR_HOST=127.0.0.1", "-e", "SOLR_PORT=8983", "-e", "SOLR_USER=solr", "-e", "SOLR_PASS=SolrRocks", "mcp-solr"],
       "enabled": true
     }
   }
