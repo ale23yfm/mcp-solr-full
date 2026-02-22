@@ -1,19 +1,30 @@
 # MCP Server for Apache Solr - Project Instructions
 
-## Project Overview
+## Project Status: ✅ COMPLETED
 
-We are developing an MCP (Model Context Protocol) server for Apache Solr in PHP that will handle job and company data from the peviitor_core project.
+This is a fully functional MCP (Model Context Protocol) server for Apache Solr in PHP that handles job and company data from peviitor_core.
 
-## Core Requirements
+## File Structure
 
-### Technology Stack
+```
+mcp-solr/
+├── src/
+│   └── functions.php    # All PHP functions (no OOP)
+├── mcp-server.php       # MCP server entry point (JSON-RPC 2.0 over STDIO)
+├── Dockerfile           # PHP CLI Docker image
+├── opencode.json        # OpenCode MCP configuration
+└── AGENTS.md           # Developer guidelines
+```
+
+## Technology Stack
+
 - **Language**: PHP (procedural, no OOP)
 - **Server**: Apache Solr (MCP integration via STDIO)
 - **No external dependencies** (pure PHP with cURL)
 
-### Data Models
+## Data Models
 
-#### Job Model (uniquekey: `url`)
+### Job Model (uniquekey: `url`)
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | url | string | Yes | Full URL to the job detail page. **unique** |
@@ -29,7 +40,7 @@ We are developing an MCP (Model Context Protocol) server for Apache Solr in PHP 
 | expirationdate | date | No | Job expiration date (vdate + 30 days max) |
 | salary | string | No | Format: "MIN-MAX CURRENCY" (e.g., "5000-8000 RON") |
 
-#### Company Model (uniquekey: `id`)
+### Company Model (uniquekey: `id`)
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | id | string | Yes | CIF/CUI (exact 8 digits, no RO prefix) - **uniquekey** |
@@ -39,45 +50,23 @@ We are developing an MCP (Model Context Protocol) server for Apache Solr in PHP 
 | website | string[] | No | Official company website (valid HTTP/HTTPS URL) |
 | career | string[] | No | Official company career page (valid HTTP/HTTPS URL) |
 
-### Required Operations
+## Available Operations
 
-Implement the following CRUD operations for both:
+### Job Operations
+- `job_select` - Search jobs with flexible queries
+- `job_search` - Simplified search with common filters
+- `job_index` / `job_insert` - Add new jobs (url is uniquekey)
+- `job_delete` - Remove jobs by url
+- `job_update` - Update job fields by url
+- `job_get` - Get a single job by url
 
-1. ** Job and Company modelsSelect** - Query/search documents in Solr
-2. **Index** - Add new documents to Solr
-3. **Insert** - Alias for Index (add documents)
-4. **Delete** - Remove documents from Solr by uniquekey
-5. **Update** - Update existing documents in Solr
-6. **Get** - Get single document by uniquekey
-
-## Prompt
-
-Create an MCP server in PHP (procedural, no OOP, no external dependencies) that interfaces with Apache Solr to manage Job and Company data from peviitor_core. The server should:
-
-- Use pure PHP with cURL for HTTP requests
-- Expose a JSON-RPC 2.0 interface over STDIO
-- Support authentication with Solr (username/password)
-- Read configuration from environment variables
-
-The server should expose tools for:
-
-- **Job Operations**:
-  - `job_select` - Search jobs with flexible queries (filter by title, company, location, tags, workmode, status, date range, salary range)
-  - `job_search` - Simplified search with common filters
-  - `job_index` / `job_insert` - Add new jobs to Solr (url is the uniquekey)
-  - `job_delete` - Remove jobs by url
-  - `job_update` - Update job fields by url
-  - `job_get` - Get a single job by url
-
-- **Company Operations**:
-  - `company_select` - Search companies (filter by id, company name, status, location)
-  - `company_search` - Simplified search with common filters
-  - `company_index` / `company_insert` - Add new companies to Solr (id/CIF is the uniquekey)
-  - `company_delete` - Remove companies by id
-  - `company_update` - Update company fields by id
-  - `company_get` - Get a single company by id
-
-Use the schemas provided above. Handle multi-valued arrays (string[]) correctly for Solr. Ensure proper error handling and validation. The server should follow MCP protocol specifications.
+### Company Operations
+- `company_select` - Search companies
+- `company_search` - Simplified search with common filters
+- `company_index` / `company_insert` - Add new companies (id/CIF is uniquekey)
+- `company_delete` - Remove companies by id
+- `company_update` - Update company fields by id
+- `company_get` - Get a single company by id
 
 ## Configuration
 
@@ -92,6 +81,68 @@ Environment variables (with defaults):
 
 Build and run:
 ```bash
+# Build the image
 docker build -t mcp-solr .
-docker run -e SOLR_HOST=solr -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+
+# Run with Docker (IMPORTANT: use -i flag for interactive STDIN)
+docker run --rm -i -e SOLR_HOST=solr -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+
+# Test with JSON-RPC request
+echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | docker run --rm -i mcp-solr
+```
+
+## Local Development
+
+```bash
+# Syntax check
+php -l src/functions.php
+php -l mcp-server.php
+
+# Run locally
+php mcp-server.php
+
+# Test manually (in another terminal)
+echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | php mcp-server.php
+```
+
+## OpenCode Integration
+
+The project includes `opencode.json` with MCP configuration:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "mcp-solr": {
+      "type": "local",
+      "command": ["docker", "run", "--rm", "-i", "-e", "SOLR_HOST=solr", "-e", "SOLR_PORT=8983", "-e", "SOLR_USER=solr", "-e", "SOLR_PASS=SolrRocks", "mcp-solr"],
+      "enabled": true
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+Restart OpenCode after configuration changes.
+
+## MCP Protocol Details
+
+The server implements JSON-RPC 2.0 over STDIO:
+- Reads JSON-RPC requests from STDIN
+- Writes JSON-RPC responses to STDOUT
+- Announces capabilities on startup (list of available tools)
+- Supports all standard JSON-RPC error codes
+
+Example request:
+```json
+{"jsonrpc": "2.0", "method": "job_get", "params": {"url": "https://example.com/job"}, "id": 1}
+```
+
+Example response:
+```json
+{"jsonrpc": "2.0", "id": 1, "result": {...}}
 ```

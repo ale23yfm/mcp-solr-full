@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenCode - MCP Solr Server</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 0; text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 2em; margin-bottom: 10px; }
+        nav { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 15px; }
+        nav a { color: #667eea; text-decoration: none; padding: 8px 16px; border-radius: 4px; }
+        nav a:hover { background: #667eea; color: white; }
+        .card { background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h2 { color: #667eea; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        h3 { color: #764ba2; margin: 20px 0 10px; }
+        code { background: #2d2d2d; color: #f8f8f2; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0; }
+        pre code { background: none; padding: 0; }
+        .note { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>OpenCode Integration</h1>
+            <p>Configurare și utilizare cu OpenCode</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <ul>
+                <li><a href="index.html">Acasă</a></li>
+                <li><a href="instalare.html">Instalare</a></li>
+                <li><a href="howto.html">Cum să Folosești</a></li>
+                <li><a href="configurare.html">Configurare</a></li>
+                <li><a href="functii.html">Funcții</a></li>
+                <li><a href="modele.html">Modele de Date</a></li>
+                <li><a href="docker.html">Docker</a></li>
+                <li><a href="opencode.html">OpenCode</a></li>
+                <li><a href="api.html">API Reference</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>Configurare opencode.json</h2>
+            <p>Adaugă următoarea configurație în fișierul <code>opencode.json</code> din rădăcina proiectului:</p>
+            <pre><code>{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "mcp-solr": {
+      "type": "local",
+      "command": ["docker", "run", "--rm", "-i", 
+        "-e", "SOLR_HOST=solr", 
+        "-e", "SOLR_PORT=8983", 
+        "-e", "SOLR_USER=solr", 
+        "-e", "SOLR_PASS=SolrRocks", 
+        "mcp-solr"],
+      "enabled": true
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp"],
+      "enabled": true
+    }
+  },
+  "command": {
+    "instructions": {
+      "description": "Show project instructions",
+      "agent": "explore"
+    }
+  }
+}</code></pre>
+        </div>
+
+        <div class="card">
+            <h2>Comenzi Personalizate</h2>
+            <p>Poți adăuga comenzi personalizate în directorul <code>.opencode/commands/</code>:</p>
+            
+            <h3>Exemplu: Comanda /instructions</h3>
+            <pre><code># Creează fișierul
+mkdir -p .opencode/commands
+
+# Creează comanda
+cat > .opencode/commands/instructions.md << 'EOF'
+---
+description: Show project instructions
+agent: explore
+---
+
+Read and display INSTRUCTIONS.md and AGENTS.md from the current project.
+EOF</code></pre>
+        </div>
+
+        <div class="card">
+            <h2>Tool-uri Disponibile</h2>
+            <p>După configurare, vei avea acces la următoarele tool-uri:</p>
+            
+            <h3>Job Tools</h3>
+            <ul>
+                <li><code>job_select</code> - Caută joburi</li>
+                <li><code>job_search</code> - Căutare simplă</li>
+                <li><code>job_insert</code> / <code>job_index</code> - Adaugă job</li>
+                <li><code>job_delete</code> - Șterge job</li>
+                <li><code>job_update</code> - Actualizează job</li>
+                <li><code>job_get</code> - Obține job</li>
+            </ul>
+
+            <h3>Company Tools</h3>
+            <ul>
+                <li><code>company_select</code> - Caută companii</li>
+                <li><code>company_search</code> - Căutare simplă</li>
+                <li><code>company_insert</code> / <code>company_index</code> - Adaugă companie</li>
+                <li><code>company_delete</code> - Șterge companie</li>
+                <li><code>company_update</code> - Actualizează companie</li>
+                <li><code>company_get</code> - Obține companie</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Exemple de Utilizare</h2>
+            <p>După configurare, poți folosi comenzi naturale în OpenCode:</p>
+            
+            <div class="note">
+                <strong>Caută toate joburile publicate:</strong><br>
+                "Use job_select to find all jobs with status published"
+            </div>
+            
+            <div class="note">
+                <strong>Adaugă un job nou:</strong><br>
+                "Insert a new job with title PHP Developer, company TechCorp, url https://example.com/job1"
+            </div>
+            
+            <div class="note">
+                <strong>Obține o companie:</strong><br>
+                "Get company details for id 12345678"
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Restart OpenCode</h2>
+            <p>După modificarea configurației, restart OpenCode pentru a încărca noile setări.</p>
+        </div>
+    </div>
+</body>
+</html>

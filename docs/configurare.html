@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurare - MCP Solr Server</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 0; text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 2em; margin-bottom: 10px; }
+        nav { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 15px; }
+        nav a { color: #667eea; text-decoration: none; padding: 8px 16px; border-radius: 4px; }
+        nav a:hover { background: #667eea; color: white; }
+        .card { background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h2 { color: #667eea; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        h3 { color: #764ba2; margin: 20px 0 10px; }
+        code { background: #2d2d2d; color: #f8f8f2; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #667eea; color: white; }
+        .note { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Configurare</h1>
+            <p>Variabile de mediu și opțiuni de configurare</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <ul>
+                <li><a href="index.html">Acasă</a></li>
+                <li><a href="instalare.html">Instalare</a></li>
+                <li><a href="howto.html">Cum să Folosești</a></li>
+                <li><a href="configurare.html">Configurare</a></li>
+                <li><a href="functii.html">Funcții</a></li>
+                <li><a href="modele.html">Modele de Date</a></li>
+                <li><a href="docker.html">Docker</a></li>
+                <li><a href="opencode.html">OpenCode</a></li>
+                <li><a href="api.html">API Reference</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>Variabile de Mediu</h2>
+            <table>
+                <tr>
+                    <th>Variabilă</th>
+                    <th>Implicit</th>
+                    <th>Descriere</th>
+                </tr>
+                <tr>
+                    <td><code>SOLR_HOST</code></td>
+                    <td>localhost</td>
+                    <td>Hostname-ul serverului Solr</td>
+                </tr>
+                <tr>
+                    <td><code>SOLR_PORT</code></td>
+                    <td>8983</td>
+                    <td>Portul serverului Solr</td>
+                </tr>
+                <tr>
+                    <td><code>SOLR_USER</code></td>
+                    <td>solr</td>
+                    <td>Username pentru autentificare Solr</td>
+                </tr>
+                <tr>
+                    <td><code>SOLR_PASS</code></td>
+                    <td>SolrRocks</td>
+                    <td>Parola pentru autentificare Solr</td>
+                </tr>
+                <tr>
+                    <td><code>SOLR_SCHEME</code></td>
+                    <td>http</td>
+                    <td>Protocolul (http sau https)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Exemple de Configurare</h2>
+            <h3>Docker</h3>
+            <pre><code>docker run -d \
+  --name mcp-solr \
+  -e SOLR_HOST=solr.mycompany.com \
+  -e SOLR_PORT=8983 \
+  -e SOLR_USER=admin \
+  -e SOLR_PASS=secret123 \
+  -e SOLR_SCHEME=https \
+  mcp-solr</code></pre>
+
+            <h3>Local</h3>
+            <pre><code>export SOLR_HOST=localhost
+export SOLR_PORT=8983
+export SOLR_USER=solr
+export SOLR_PASS=SolrRocks
+php mcp-server.php</code></pre>
+        </div>
+    </div>
+</body>
+</html>

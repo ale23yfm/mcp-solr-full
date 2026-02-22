@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Solr Server - Documentație</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 0; text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .subtitle { font-size: 1.2em; opacity: 0.9; }
+        nav { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 15px; }
+        nav a { color: #667eea; text-decoration: none; padding: 8px 16px; border-radius: 4px; transition: background 0.3s; }
+        nav a:hover { background: #667eea; color: white; }
+        .card { background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h2 { color: #667eea; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        h3 { color: #764ba2; margin: 20px 0 10px; }
+        code { background: #2d2d2d; color: #f8f8f2; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0; }
+        pre code { background: none; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #667eea; color: white; }
+        tr:hover { background: #f5f5f5; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; margin: 2px; }
+        .badge-green { background: #10b981; color: white; }
+        .badge-purple { background: #8b5cf6; color: white; }
+        .badge-blue { background: #3b82f6; color: white; }
+        .status { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .status-ok { background: #10b981; }
+        footer { text-align: center; padding: 20px; color: #666; margin-top: 40px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>MCP Solr Server</h1>
+            <p class="subtitle">Documentație completă - MCP Server pentru Apache Solr în PHP</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <ul>
+                <li><a href="index.html">Acasă</a></li>
+                <li><a href="instalare.html">Instalare</a></li>
+                <li><a href="howto.html">Cum să Folosești</a></li>
+                <li><a href="configurare.html">Configurare</a></li>
+                <li><a href="functii.html">Funcții</a></li>
+                <li><a href="modele.html">Modele de Date</a></li>
+                <li><a href="docker.html">Docker</a></li>
+                <li><a href="opencode.html">OpenCode</a></li>
+                <li><a href="api.html">API Reference</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>Bine ai venit!</h2>
+            <p>Acest proiect este un <strong>MCP (Model Context Protocol) Server</strong> pentru <strong>Apache Solr</strong> scris în PHP procedural. Server-ul gestionează date despre <strong>Job-uri</strong> și <strong>Companii</strong> din proiectul peviitor_core.</p>
+            
+            <h3>Caracteristici principale</h3>
+            <ul>
+                <li><span class="badge badge-green">✅</span> PHP pur, fără dependențe externe</li>
+                <li><span class="badge badge-green">✅</span> Protocol JSON-RPC 2.0 peste STDIO</li>
+                <li><span class="badge badge-green">✅</span> Suport pentru autentificare Solr</li>
+                <li><span class="badge badge-green">✅</span> CRUD complet pentru Job și Company</li>
+                <li><span class="badge badge-green">✅</span> Configurare prin variabile de mediu</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Structura Proiectului</h2>
+            <pre><code>mcp-solr/
+├── src/
+│   └── functions.php      # Toate funcțiile PHP
+├── mcp-server.php         # Punct de intrare server MCP
+├── Dockerfile             # Imagine Docker PHP CLI
+├── opencode.json         # Configurare OpenCode
+├── AGENTS.md            # Ghid pentru dezvoltatori
+├── INSTRUCTIONS.md       # Instrucțiuni proiect
+└── docs/                 # Documentație HTML</code></pre>
+        </div>
+
+        <div class="card">
+            <h2>Quick Start</h2>
+            <pre><code># Build Docker
+docker build -t mcp-solr .
+
+# Rulează serverul
+docker run --rm -i -e SOLR_HOST=solr mcp-solr
+
+# Testează
+echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | docker run --rm -i mcp-solr</code></pre>
+        </div>
+
+        <div class="card">
+            <h2>Tool-uri Disponibile</h2>
+            <h3>Job Operations</h3>
+            <p><span class="badge badge-blue">job_select</span> <span class="badge badge-blue">job_search</span> <span class="badge badge-blue">job_insert</span> <span class="badge badge-blue">job_index</span> <span class="badge badge-blue">job_delete</span> <span class="badge badge-blue">job_update</span> <span class="badge badge-blue">job_get</span></p>
+            
+            <h3>Company Operations</h3>
+            <p><span class="badge badge-purple">company_select</span> <span class="badge badge-purple">company_search</span> <span class="badge badge-purple">company_insert</span> <span class="badge badge-purple">company_index</span> <span class="badge badge-purple">company_delete</span> <span class="badge badge-purple">company_update</span> <span class="badge badge-purple">company_get</span></p>
+        </div>
+    </div>
+
+    <footer>
+        <p>MCP Solr Server &copy; 2026 - Documentație generată automat</p>
+    </footer>
+</body>
+</html>
