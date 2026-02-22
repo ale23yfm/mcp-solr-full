@@ -179,30 +179,6 @@ Example response:
 {"jsonrpc": "2.0", "id": 1, "result": {...}}
 ```
 
-## GitHub Pages Deployment
-
-Documentation is automatically deployed to GitHub Pages using MkDocs.
-
-### Setup
-1. Go to Repository Settings → Pages
-2. Source: Select "GitHub Actions"
-
-### Files
-- `mkdocs.yml` - MkDocs configuration
-- `docs/` - Documentation source files
-- `.github/workflows/docs.yml` - GitHub Actions workflow
-
-### Trigger
-Documentation deploys automatically when changes are pushed to:
-- `main` branch
-- Files in `docs/`, `INSTRUCTIONS.md`, `AGENTS.md`, or `mkdocs.yml`
-
-### Local Preview
-```bash
-pip install mkdocs-material
-mkdocs serve
-```
-
 ## Changelog
 
 ### 2026-02-22
@@ -211,5 +187,3 @@ mkdocs serve
 - Added Docker requirements section to INSTRUCTIONS.md and AGENTS.md
 - Started Solr container (`peviitor-solr`) for MCP connectivity
 - Configured `chrome-devtools` globally in `~/.config/opencode/opencode.json`
-- Added Documentation Policy section
-- Added GitHub Pages deployment with MkDocs

@@ -186,5 +186,3 @@ MCP Solr connects to Solr at `solr:8983` (docker network). If Solr is not runnin
 - Added Docker requirements section (Solr must be running for MCP connectivity)
 - Started Solr container (`peviitor-solr`)
 - `chrome-devtools` configured globally in `~/.config/opencode/opencode.json`
-- Added Documentation Policy section
-- Added GitHub Pages deployment with MkDocs

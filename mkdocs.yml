@@ -1,0 +1,21 @@
+site_name: MCP Solr Server
+site_description: MCP Server for Apache Solr in PHP
+site_author: Peviitor
+repo_url: https://github.com/peviitor-ro/mcp-solr
+repo_name: peviitor-ro/mcp-solr
+
+theme:
+  name: material
+  palette: 
+    - primary: indigo
+    - accent: indigo
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Instructions: instructions.md
+  - Agents: agents.md
