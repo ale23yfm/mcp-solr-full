@@ -17,6 +17,7 @@ When making changes to:
 You MUST update the relevant documentation sections:
 - **INSTRUCTIONS.md** - Project overview, operations, configuration
 - **AGENTS.md** - Developer guidelines, code style, testing
+- **docs/** - GitHub Pages documentation (copy of INSTRUCTIONS.md and AGENTS.md)
 
 ## File Structure
 

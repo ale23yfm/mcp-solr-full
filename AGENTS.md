@@ -13,7 +13,10 @@ When making changes to:
 - Available operations or data models
 - File structure
 
-You MUST update the relevant documentation sections and add an entry to the Changelog.
+You MUST update the relevant documentation sections and add an entry to the Changelog:
+- **INSTRUCTIONS.md** - Project overview, operations, configuration
+- **AGENTS.md** - Developer guidelines, code style, testing
+- **docs/** - GitHub Pages documentation (copy of INSTRUCTIONS.md and AGENTS.md)
 
 ## Quick Start
 ```bash
