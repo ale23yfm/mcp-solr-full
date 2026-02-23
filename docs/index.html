@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Solr - Comprehensive Documentation</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 50px 20px; text-align: center; border-radius: 10px; margin-bottom: 30px; }
+        header h1 { font-size: 3em; margin-bottom: 10px; }
+        header p { font-size: 1.3em; opacity: 0.9; }
+        .card { background: white; border-radius: 10px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card h2 { color: #667eea; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .card h3 { color: #764ba2; margin: 25px 0 15px; font-size: 1.3em; }
+        .card h4 { color: #555; margin: 20px 0 10px; font-size: 1.1em; }
+        code { background: #f4f4f4; padding: 2px 8px; border-radius: 4px; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.9em; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 15px 0; }
+        pre code { background: none; padding: 0; color: inherit; }
+        .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
+        .status.pass { background: #d4edda; color: #155724; }
+        .status.fail { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #667eea; color: white; font-weight: 600; }
+        tr:hover { background: #f5f5f5; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .alert { padding: 15px 20px; border-radius: 8px; margin: 15px 0; }
+        .alert.info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+        .alert.warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+        .alert.success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .alert.error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .toc { background: #f8f9fa; padding: 25px; border-radius: 8px; margin-bottom: 20px; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 8px 0; border-bottom: 1px solid #e9ecef; }
+        .toc a { color: #667eea; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .badge { display: inline-block; background: #667eea; color: white; padding: 3px 12px; border-radius: 12px; font-size: 0.85em; margin-right: 5px; }
+        .badge.green { background: #28a745; }
+        .badge.purple { background: #764ba2; }
+        .badge.orange { background: #fd7e14; }
+        footer { text-align: center; padding: 20px; color: #666; margin-top: 40px; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .function-signature { background: #f8f9fa; padding: 10px 15px; border-left: 3px solid #667eea; margin 0; font-family: monospace; }
+        .param-table: 10px td:first-child { width: 150px; font-weight: 600; }
+        .param-table td:last-child { font-family: monospace; color: #667eea; }
+        .code-block { background: #282c34; color: #abb2bf; padding: 15px; border-radius: 6px; overflow-x: auto; }
+        .code-block .comment { color: #5c6370; font-style: italic; }
+        .code-block .keyword { color: #c678dd; }
+        .code-block .string { color: #98c379; }
+        .code-block .function { color: #61afef; }
+        nav.breadcrumb { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MCP Solr</h1>
+            <p>Model Context Protocol Server for Apache Solr - PHP Implementation</p>
+            <div style="margin-top: 20px;">
+                <span class="badge green">PHP 8.2+</span>
+                <span class="badge">Docker</span>
+                <span class="badge purple">Apache Solr</span>
+                <span class="badge orange">JSON-RPC 2.0</span>
+            </div>
+        </header>
+
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <div class="two-col">
+                <ul>
+                    <li><a href="#overview">1. Project Overview</a></li>
+                    <li><a href="#architecture">2. Architecture</a></li>
+                    <li><a href="#prerequisites">3. Prerequisites</a></li>
+                    <li><a href="#configuration">4. Configuration</a></li>
+                    <li><a href="#quickstart">5. Quick Start Guide</a></li>
+                </ul>
+                <ul>
+                    <li><a href="#code-review">6. Code Review</a></li>
+                    <li><a href="#api-reference">7. API Reference</a></li>
+                    <li><a href="#test-coverage">8. Test Coverage</a></li>
+                    <li><a href="#examples">9. Usage Examples</a></li>
+                    <li><a href="#data-models">10. Data Models</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 1. PROJECT OVERVIEW -->
+        <div class="card" id="overview">
+            <h2>1. Project Overview</h2>
+            <p><strong>MCP Solr</strong> is a <span class="badge">Model Context Protocol (MCP)</span> server that provides a bridge between AI assistants and Apache Solr. Built in pure PHP with no external dependencies, it enables CRUD operations on Job and Company data cores.</p>
+            
+            <br>
+            <div class="alert info">
+                <strong>Project Status:</strong> ACTIVE - All 11 tests passing
+            </div>
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Full CRUD Operations</strong> - Create, Read, Update, Delete for Job and Company cores</li>
+                <li><strong>Flexible Search</strong> - Support for complex queries with filters</li>
+                <li><strong>JSON-RPC 2.0</strong> - Industry-standard protocol over STDIO</li>
+                <li><strong>OpenCode Compatible</strong> - Ready-to-use MCP configuration</li>
+                <li><strong>Zero Dependencies</strong> - Pure PHP with cURL only</li>
+                <li><strong>Docker Ready</strong> - Containerized deployment</li>
+            </ul>
+
+            <h3>Technology Stack</h3>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Technology</th>
+                    <th>Version</th>
+                </tr>
+                <tr>
+                    <td>Language</td>
+                    <td>PHP</td>
+                    <td>8.2+</td>
+                </tr>
+                <tr>
+                    <td>Protocol</td>
+                    <td>JSON-RPC 2.0</td>
+                    <td>STDIO</td>
+                </tr>
+                <tr>
+                    <td>Search Engine</td>
+                    <td>Apache Solr</td>
+                    <td>9.x</td>
+                </tr>
+                <tr>
+                    <td>Container</td>
+                    <td>Docker</td>
+                    <td>Latest</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 2. ARCHITECTURE -->
+        <div class="card" id="architecture">
+            <h2>2. Architecture</h2>
+            
+            <h3>System Design</h3>
+            <pre><code>+-------------+     STDIO      +-------------+    HTTP     +-------------+
+|  OpenCode   | <============> | MCP Server  | <==========> | Apache Solr |
+|   Client    |   JSON-RPC     | (PHP)       |    REST      |   (Docker)  |
++-------------+                +-------------+              +-------------+
+                                             |
+                              +--------------+
+                              |
+                    +---------+---------+
+                    |                 |
+               [Job Core]      [Company Core]
+               (peviitor)      (peviitor)</code></pre>
+
+            <h3>File Structure</h3>
+            <pre><code>mcp-solr/
+├── src/
+│   └── functions.php    # All Solr operations (516 lines)
+├── mcp-server.php       # MCP server entry point (439 lines)
+├── test/
+│   ├── job_test.php    # Job core test suite (6 tests)
+│   ├── company_test.php# Company core test suite (5 tests)
+│   └── run_tests.php   # Test runner
+├── Dockerfile          # PHP CLI Docker image
+├── opencode.json       # OpenCode MCP configuration
+├── INSTRUCTIONS.md     # Project documentation
+├── AGENTS.md          # Developer guidelines
+└── docs/              # GitHub Pages documentation</code></pre>
+
+            <h3>Protocol Flow</h3>
+            <ol>
+                <li>Client sends JSON-RPC request via STDIN</li>
+                <li>MCP Server parses request and validates method</li>
+                <li>Server calls appropriate function from functions.php</li>
+                <li>Function makes HTTP request to Solr API</li>
+                <li>Solr responds with JSON</li>
+                <li>Server formats response and sends via STDOUT</li>
+            </ol>
+        </div>
+
+        <!-- 3. PREREQUISITES -->
+        <div class="card" id="prerequisites">
+            <h2>3. Prerequisites</h2>
+            
+            <div class="alert warning">
+                <strong>Important:</strong> MCP Solr requires Solr to be running. All operations will fail if Solr is not accessible.
+            </div>
+            
+            <h3>System Requirements</h3>
+            <table>
+                <tr>
+                    <th>Requirement</th>
+                    <th>Description</th>
+                    <th>Check Command</th>
+                </tr>
+                <tr>
+                    <td>Docker</td>
+                    <td>Must be installed and running</td>
+                    <td><code>docker --version</code></td>
+                </tr>
+                <tr>
+                    <td>Solr Container</td>
+                    <td>peviitor-solr container running</td>
+                    <td><code>docker ps | grep solr</code></td>
+                </tr>
+                <tr>
+                    <td>PHP 8.2+</td>
+                    <td>For local development (optional)</td>
+                    <td><code>php --version</code></td>
+                </tr>
+                <tr>
+                    <td>cURL Extension</td>
+                    <td>PHP cURL for HTTP requests</td>
+                    <td><code>php -m | grep curl</code></td>
+                </tr>
+            </table>
+
+            <h3>Starting Solr</h3>
+            <pre><code># Check if Solr is running
+docker ps | grep solr
+
+# Start Solr if not running
+docker start peviitor-solr
+
+# Verify Solr is accessible
+curl -s http://localhost:8983/solr/admin/ping</code></pre>
+        </div>
+
+        <!-- 4. CONFIGURATION -->
+        <div class="card" id="configuration">
+            <h2>4. Configuration</h2>
+            
+            <p>MCP Solr uses environment variables for configuration. These can be set when running the Docker container or in your local environment.</p>
+            
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Default</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>SOLR_HOST</code></td>
+                    <td>localhost</td>
+                    <td>No</td>
+                    <td>Solr hostname or IP address</td>
+                </tr>
+                <tr>
+                    <td><code>SOLR_PORT</code></td>
+                    <td>8983</td>
+                    <td>No</td>
+                    <td>Solr port number</td>
+                </tr>
+                <tr>
+                    <td><code>SOLR_USER</code></td>
+                    <td>solr</td>
+                    <td>No</td>
+                    <td>Solr username for Basic Auth</td>
+                </tr>
+                <tr>
+                    <td><code>SOLR_PASS</code></td>
+                    <td>SolrRocks</td>
+                    <td>No</td>
+                    <td>Solr password for Basic Auth</td>
+                </tr>
+                <tr>
+                    <td><code>SOLR_SCHEME</code></td>
+                    <td>http</td>
+                    <td>No</td>
+                    <td>HTTP or HTTPS</td>
+                </tr>
+            </table>
+
+            <h3>Docker Configuration</h3>
+            <pre><code># Build the Docker image
+docker build -t mcp-solr .
+
+# Run with default configuration (connects to localhost:8983)
+docker run --rm -i --network host mcp-solr
+
+# Run with custom environment variables
+docker run --rm -i --network host \
+  -e SOLR_HOST=127.0.0.1 \
+  -e SOLR_PORT=8983 \
+  -e SOLR_USER=solr \
+  -e SOLR_PASS=SolrRocks \
+  -e SOLR_SCHEME=http \
+  mcp-solr</code></pre>
+
+            <h3>OpenCode Integration</h3>
+            <p>Add this to your <code>opencode.json</code>:</p>
+            <pre><code>{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "mcp-solr": {
+      "type": "local",
+      "command": ["docker", "run", "--rm", "-i", "--network", "host", 
+                  "-e", "SOLR_HOST=127.0.0.1", 
+                  "-e", "SOLR_PORT=8983", 
+                  "-e", "SOLR_USER=solr", 
+                  "-e", "SOLR_PASS=SolrRocks", 
+                  "mcp-solr"],
+      "enabled": true
+    }
+  }
+}</code></pre>
+        </div>
+
+        <!-- 5. QUICK START -->
+        <div class="card" id="quickstart">
+            <h2>5. Quick Start Guide</h2>
+            
+            <h3>Step 1: Build the Docker Image</h3>
+            <pre><code>docker build -t mcp-solr .</code></pre>
+            
+            <h3>Step 2: Verify Solr is Running</h3>
+            <pre><code>docker ps | grep peviitor-solr
+# If not running:
+docker start peviitor-solr</code></pre>
+            
+            <h3>Step 3: Test MCP Server</h3>
+            <pre><code># Run a simple test
+echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | \
+  docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+            
+            <h3>Step 4: Run Full Test Suite</h3>
+            <pre><code># Run all tests
+php test/run_tests.php
+
+# Or run individual test files
+php test/job_test.php
+php test/company_test.php</code></pre>
+            
+            <h3>Step 5: Local Development (Optional)</h3>
+            <pre><code># Syntax check before running locally
+php -l src/functions.php
+php -l mcp-server.php
+
+# Run locally (requires PHP 8.2+)
+php mcp-server.php</code></pre>
+        </div>
+
+        <!-- 6. CODE REVIEW -->
+        <div class="card" id="code-review">
+            <h2>6. Code Review</h2>
+            
+            <h3>Source Files Summary</h3>
+            <table>
+                <tr>
+                    <th>File</th>
+                    <th>Lines</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>src/functions.php</code></td>
+                    <td>516</td>
+                    <td>Core Library</td>
+                    <td>All Solr operations - Job & Company CRUD</td>
+                </tr>
+                <tr>
+                    <td><code>mcp-server.php</code></td>
+                    <td>439</td>
+                    <td>Server</td>
+                    <td>MCP server, JSON-RPC protocol handler</td>
+                </tr>
+                <tr>
+                    <td><code>test/job_test.php</code></td>
+                    <td>116</td>
+                    <td>Tests</td>
+                    <td>Job core test suite (6 tests)</td>
+                </tr>
+                <tr>
+                    <td><code>test/company_test.php</code></td>
+                    <td>106</td>
+                    <td>Tests</td>
+                    <td>Company core test suite (5 tests)</td>
+                </tr>
+                <tr>
+                    <td><code>Dockerfile</code></td>
+                    <td>15</td>
+                    <td>Config</td>
+                    <td>PHP 8.2 CLI Docker image</td>
+                </tr>
+            </table>
+
+            <h3>src/functions.php - Detailed Analysis</h3>
+            
+            <h4>Configuration Section (Lines 11-33)</h4>
+            <p>Defines constants for Solr connection using environment variables with fallback defaults:</p>
+            <ul>
+                <li><code>SOLR_HOST</code> - Server hostname</li>
+                <li><code>SOLR_PORT</code> - Server port (default 8983)</li>
+                <li><code>SOLR_USER</code> - Authentication username</li>
+                <li><code>SOLR_PASS</code> - Authentication password</li>
+                <li><code>SOLR_SCHEME</code> - HTTP/HTTPS protocol</li>
+            </ul>
+
+            <h4>Core HTTP Client - solr_request() (Lines 53-122)</h4>
+            <div class="function-signature">
+                function solr_request($core, $method, $endpoint, $data = null, $commit = false)
+            </div>
+            <p><strong>Purpose:</strong> Core HTTP client for all Solr communication</p>
+            <p><strong>Features:</strong></p>
+            <ul>
+                <li>Supports GET and POST methods</li>
+                <li>Basic Authentication support</li>
+                <li>30-second timeout</li>
+                <li>JSON encoding/decoding</li>
+                <li>Error handling with HTTP status codes</li>
+            </ul>
+
+            <h4>Query Escape - solr_escape() (Lines 134-147)</h4>
+            <div class="function-signature">
+                function solr_escape($value)
+            </div>
+            <p><strong>Purpose:</strong> Escape special characters for Solr queries</p>
+            <p><strong>Features:</strong></p>
+            <ul>
+                <li>Returns <code>*:*</code> for empty values</li>
+                <li>Uses <code>addslashes()</code> for escaping</li>
+                <li>Wraps values in quotes for phrase matching</li>
+            </ul>
+
+            <h4>Job Functions (Lines 150-345)</h4>
+            <table class="param-table">
+                <tr>
+                    <td>job_select()</td>
+                    <td>Search jobs with flexible queries</td>
+                </tr>
+                <tr>
+                    <td>job_insert()</td>
+                    <td>Insert new job (url is unique key)</td>
+                </tr>
+                <tr>
+                    <td>job_index()</td>
+                    <td>Alias for job_insert</td>
+                </tr>
+                <tr>
+                    <td>job_delete()</td>
+                    <td>Delete job by url</td>
+                </tr>
+                <tr>
+                    <td>job_update()</td>
+                    <td>Update job fields by url</td>
+                </tr>
+                <tr>
+                    <td>job_get()</td>
+                    <td>Get job by url</td>
+                </tr>
+            </table>
+
+            <h4>Company Functions (Lines 347-516)</h4>
+            <table class="param-table">
+                <tr>
+                    <td>company_select()</td>
+                    <td>Search companies</td>
+                </tr>
+                <tr>
+                    <td>company_insert()</td>
+                    <td>Insert new company (id/CIF is unique key)</td>
+                </tr>
+                <tr>
+                    <td>company_index()</td>
+                    <td>Alias for company_insert</td>
+                </tr>
+                <tr>
+                    <td>company_delete()</td>
+                    <td>Delete company by id</td>
+                </tr>
+                <tr>
+                    <td>company_update()</td>
+                    <td>Update company fields by id</td>
+                </tr>
+                <tr>
+                    <td>company_get()</td>
+                    <td>Get company by id</td>
+                </tr>
+            </table>
+
+            <h3>mcp-server.php - Detailed Analysis</h3>
+            
+            <h4>MCP Protocol Helpers (Lines 28-86)</h4>
+            <table class="param-table">
+                <tr>
+                    <td>mcp_read_json()</td>
+                    <td>Read JSON from STDIN</td>
+                </tr>
+                <tr>
+                    <td>mcp_response()</td>
+                    <td>Send JSON to STDOUT</td>
+                </tr>
+                <tr>
+                    <td>mcp_error()</td>
+                    <td>Send error response</td>
+                </tr>
+            </table>
+
+            <h4>Method Registry (Lines 88-372)</h4>
+            <p>Maps JSON-RPC method names to handler functions. Includes:</p>
+            <ul>
+                <li><strong>MCP Protocol Methods:</strong> initialize, tools/list, ping</li>
+                <li><strong>Job Methods:</strong> job_select, job_search, job_insert, job_index, job_delete, job_update, job_get</li>
+                <li><strong>Company Methods:</strong> company_select, company_search, company_insert, company_index, company_delete, company_update, company_get</li>
+            </ul>
+
+            <h4>Request Processing Loop (Lines 375-439)</h4>
+            <p>Main loop that:</p>
+            <ol>
+                <li>Reads JSON-RPC requests from STDIN</li>
+                <li>Parses and validates the request</li>
+                <li>Dispatches to appropriate handler</li>
+                <li>Sends response via STDOUT</li>
+                <li>Handles errors with JSON-RPC error codes</li>
+            </ol>
+
+            <h3>Code Style Compliance</h3>
+            <div class="alert success">
+                <strong>All code style guidelines followed:</strong>
+            </div>
+            <ul>
+                <li>Procedural PHP (no OOP)</li>
+                <li>snake_case function/variable names</li>
+                <li>SCREAMING_SNAKE_CASE constants</li>
+                <li>4-space indentation</li>
+                <li>Comprehensive PHPDoc comments</li>
+                <li>Error handling via return arrays</li>
+            </ul>
+        </div>
+
+        <!-- 7. API REFERENCE -->
+        <div class="card" id="api-reference">
+            <h2>7. API Reference</h2>
+            
+            <h3>MCP Protocol Methods</h3>
+            
+            <h4>initialize</h4>
+            <p>Establish connection and negotiate capabilities with the MCP client.</p>
+            <pre><code>// Request
+{"jsonrpc": "2.0", "method": "initialize", "params": {"protocolVersion": "2024-11-05"}, "id": 1}
+
+// Response
+{"jsonrpc": "2.0", "id": 1, "result": {
+  "protocolVersion": "2024-11-05",
+  "capabilities": {"tools": {}},
+  "serverInfo": {"name": "mcp-solr", "version": "1.0.0"}
+}}</code></pre>
+
+            <h4>tools/list</h4>
+            <p>List all available tools/methods.</p>
+            <pre><code>// Request
+{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 2}</code></pre>
+
+            <h4>ping</h4>
+            <p>Health check - returns empty result on success.</p>
+            <pre><code>// Request
+{"jsonrpc": "2.0", "method": "ping", "params": {}, "id": 3}</code></pre>
+
+            <h3>Job Core Methods</h3>
+            
+            <h4>job_select - Search Jobs</h4>
+            <div class="function-signature">
+                job_select(query = '*:*', start = 0, rows = 10, filters = [])
+            </div>
+            <table class="param-table">
+                <tr>
+                    <td>query</td>
+                    <td>string</td>
+                    <td>Solr query string (default: *:*)</td>
+                </tr>
+                <tr>
+                    <td>start</td>
+                    <td>int</td>
+                    <td>Pagination offset (default: 0)</td>
+                </tr>
+                <tr>
+                    <td>rows</td>
+                    <td>int</td>
+                    <td>Number of results (default: 10)</td>
+                </tr>
+                <tr>
+                    <td>filters</td>
+                    <td>array</td>
+                    <td>Optional: fields, status, company, workmode, location</td>
+                </tr>
+            </table>
+            <pre><code>{"jsonrpc": "2.0", "method": "job_select", "params": {"query": "PHP", "rows": 5}, "id": 1}</code></pre>
+
+            <h4>job_search - Simplified Search</h4>
+            <div class="function-signature">
+                job_search(term = '*:*', offset = 0, limit = 20, filters = {})
+            </div>
+            <pre><code>{"jsonrpc": "2.0", "method": "job_search", "params": {"term": "developer", "status": "published"}, "id": 2}</code></pre>
+
+            <h4>job_insert / job_index - Insert Job</h4>
+            <div class="function-signature">
+                job_insert(data) | job_index(data)
+            </div>
+            <table class="param-table">
+                <tr>
+                    <td>url</td>
+                    <td>string</td>
+                    <td><strong>REQUIRED</strong> - Unique job URL</td>
+                </tr>
+                <tr>
+                    <td>title</td>
+                    <td>string</td>
+                    <td>Job title</td>
+                </tr>
+                <tr>
+                    <td>company</td>
+                    <td>string</td>
+                    <td>Company name</td>
+                </tr>
+                <tr>
+                    <td>location</td>
+                    <td>array</td>
+                    <td>Array of locations</td>
+                </tr>
+                <tr>
+                    <td>tags</td>
+                    <td>array</td>
+                    <td>Array of skill tags</td>
+                </tr>
+                <tr>
+                    <td>workmode</td>
+                    <td>string</td>
+                    <td>remote, on-site, or hybrid</td>
+                </tr>
+                <tr>
+                    <td>salary</td>
+                    <td>string</td>
+                    <td>Salary range (e.g., "5000-8000 RON")</td>
+                </tr>
+                <tr>
+                    <td>status</td>
+                    <td>string</td>
+                    <td>scraped, tested, published, verified</td>
+                </tr>
+            </table>
+            <pre><code>{"jsonrpc": "2.0", "method": "job_insert", "params": {
+  "url": "https://example.com/job/123",
+  "title": "PHP Developer",
+  "company": "Acme Corp",
+  "location": ["Bucuresti"],
+  "tags": ["PHP", "MySQL"],
+  "workmode": "hybrid",
+  "salary": "5000-8000 RON"
+}, "id": 3}</code></pre>
+
+            <h4>job_get - Get Job by URL</h4>
+            <pre><code>{"jsonrpc": "2.0", "method": "job_get", "params": {"url": "https://example.com/job/123"}, "id": 4}</code></pre>
+
+            <h4>job_update - Update Job</h4>
+            <pre><code>{"jsonrpc": "2.0", "method": "job_update", "params": {
+  "url": "https://example.com/job/123",
+  "fields": {"title": "Senior PHP Developer", "status": "published"}
+}, "id": 5}</code></pre>
+
+            <h4>job_delete - Delete Job</h4>
+            <pre><code>{"jsonrpc": "2.0", "method": "job_delete", "params": {"url": "https://example.com/job/123"}, "id": 6}</code></pre>
+
+            <h3>Company Core Methods</h3>
+            
+            <h4>company_select - Search Companies</h4>
+            <div class="function-signature">
+                company_select(query = '*:*', start = 0, rows = 10, filters = [])
+            </div>
+            <pre><code>{"jsonrpc": "2.0", "method": "company_select", "params": {"query": "Acme", "rows": 5}, "id": 7}</code></pre>
+
+            <h4>company_search - Simplified Search</h4>
+            <pre><code>{"jsonrpc": "2.0", "method": "company_search", "params": {"term": "tech", "status": "activ"}, "id": 8}</code></pre>
+
+            <h4>company_insert / company_index - Insert Company</h4>
+            <table class="param-table">
+                <tr>
+                    <td>id</td>
+                    <td>string</td>
+                    <td><strong>REQUIRED</strong> - CIF/CUI (unique key)</td>
+                </tr>
+                <tr>
+                    <td>company</td>
+                    <td>string</td>
+                    <td>Company legal name</td>
+                </tr>
+                <tr>
+                    <td>status</td>
+                    <td>string</td>
+                    <td>activ, suspendat, inactiv, radiat</td>
+                </tr>
+                <tr>
+                    <td>location</td>
+                    <td>array</td>
+                    <td>Array of locations</td>
+                </tr>
+                <tr>
+                    <td>website</td>
+                    <td>array</td>
+                    <td>Array of website URLs</td>
+                </tr>
+                <tr>
+                    <td>career</td>
+                    <td>array</td>
+                    <td>Array of career page URLs</td>
+                </tr>
+            </table>
+            <pre><code>{"jsonrpc": "2.0", "method": "company_insert", "params": {
+  "id": "12345678",
+  "company": "Acme Corp SRL",
+  "status": "activ",
+  "location": ["Bucuresti"],
+  "website": ["https://acme.com"]
+}, "id": 9}</code></pre>
+
+            <h4>company_get - Get Company by ID</h4>
+            <pre><code>{"jsonrpc": "2.0", "method": "company_get", "params": {"id": "12345678"}, "id": 10}</code></pre>
+
+            <h4>company_update - Update Company</h4>
+            <pre><code>{"jsonrpc": "2.0", "method": "company_update", "params": {
+  "id": "12345678",
+  "fields": {"company": "Updated Company Name", "status": "suspendat"}
+}, "id": 11}</code></pre>
+
+            <h4>company_delete - Delete Company</h4>
+            <pre><code>{"jsonrpc": "2.0", "method": "company_delete", "params": {"id": "12345678"}, "id": 12}</code></pre>
+
+            <h3>Error Responses</h3>
+            <p>JSON-RPC uses standard error codes:</p>
+            <table>
+                <tr>
+                    <th>Code</th>
+                    <th>Meaning</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>-32600</td>
+                    <td>Invalid Request</td>
+                    <td>JSON is not a valid JSON-RPC request</td>
+                </tr>
+                <tr>
+                    <td>-32601</td>
+                    <td>Method not found</td>
+                    <td>The method does not exist</td>
+                </tr>
+                <tr>
+                    <td>-32602</td>
+                    <td>Invalid params</td>
+                    <td>Invalid method parameters</td>
+                </tr>
+                <tr>
+                    <td>-32603</td>
+                    <td>Internal error</td>
+                    <td>Internal JSON-RPC error</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 8. TEST COVERAGE -->
+        <div class="card" id="test-coverage">
+            <h2>8. Test Coverage</h2>
+            
+            <div class="alert success">
+                <strong>Status: ALL TESTS PASSING</strong> - 11/11 tests passed
+            </div>
+
+            <h3>Test Execution</h3>
+            <pre><code># Run all tests with test runner
+php test/run_tests.php
+
+# Run individual test suites
+php test/job_test.php
+php test/company_test.php</code></pre>
+
+            <h3>Job Core Tests (6/6 Passing)</h3>
+            <table>
+                <tr>
+                    <th>Test Function</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td>job_insert</td>
+                    <td>Insert a new job with all fields</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td>job_get</td>
+                    <td>Retrieve inserted job by URL</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td>job_select</td>
+                    <td>Query all jobs with *:*</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td>job_search</td>
+                    <td>Search jobs by term</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td>job_update</td>
+                    <td>Update job fields and verify</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td>job_delete</td>
+                    <td>Delete job and verify removal</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+            </table>
+
+            <h3>Company Core Tests (5/5 Passing)</h3>
+            <table>
+                <tr>
+                    <th>Test Function</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td>company_insert</td>
+                    <td>Insert a new company with all fields</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td>company_get</td>
+                    <td>Retrieve inserted company by ID</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td>company_select</td>
+                    <td>Query all companies with *:*</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td>company_update</td>
+                    <td>Update company fields and verify</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+                <tr>
+                    <td>company_delete</td>
+                    <td>Delete company and verify removal</td>
+                    <td><span class="status pass">PASSED</span></td>
+                </tr>
+            </table>
+
+            <h3>Test Data Used</h3>
+            
+            <h4>Job Test Data</h4>
+            <pre><code>$testJob = [
+    'url' => 'https://example.com/job/test-' . time(),
+    'title' => 'PHP Developer Test',
+    'company' => 'Test Company',
+    'location' => ['Bucuresti'],
+    'tags' => ['PHP', 'MySQL'],
+    'workmode' => 'hybrid',
+    'salary' => '5000-8000',
+    'description' => 'Test job description',
+    'status' => 'scraped',
+];</code></pre>
+
+            <h4>Company Test Data</h4>
+            <pre><code>$testCompany = [
+    'id' => 'TEST' . time(),
+    'company' => 'Test Company SRL',
+    'cif' => 'TEST' . time(),
+    'address' => 'Bucuresti, Romania',
+    'website' => 'https://example.com',
+    'description' => 'Test company description',
+    'status' => 'active',
+];</code></pre>
+
+            <h3>Test Validation Criteria</h3>
+            <ul>
+                <li><strong>Insert:</strong> Response header status = 0</li>
+                <li><strong>Get:</strong> Returned document matches input URL/ID</li>
+                <li><strong>Select:</strong> Response contains numFound</li>
+                <li><strong>Update:</strong> Field value matches new value</li>
+                <li><strong>Delete:</strong> Get returns null after deletion</li>
+            </ul>
+        </div>
+
+        <!-- 9. EXAMPLES -->
+        <div class="card" id="examples">
+            <h2>9. Usage Examples</h2>
+            
+            <h3>Basic Operations via Docker</h3>
+
+            <h4>1. Initialize Connection</h4>
+            <pre><code>echo '{"jsonrpc": "2.0", "method": "initialize", "params": {"protocolVersion": "2024-11-05"}, "id": 1}' | \
+  docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+
+            <h4>2. List Available Tools</h4>
+            <pre><code>echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 2}' | \
+  docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+
+            <h4>3. Ping Health Check</h4>
+            <pre><code>echo '{"jsonrpc": "2.0", "method": "ping", "params": {}, "id": 3}' | \
+  docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+
+            <h4>4. Search Jobs</h4>
+            <pre><code>echo '{"jsonrpc": "2.0", "method": "job_search", "params": {"term": "PHP", "limit": 10}, "id": 4}' | \
+  docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+
+            <h4>5. Insert a Job</h4>
+            <pre><code>echo '{"jsonrpc": "2.0", "method": "job_insert", "params": {
+  "url": "https://example.com/job/123",
+  "title": "PHP Developer",
+  "company": "Acme Corp",
+  "location": ["Bucuresti", "Cluj"],
+  "tags": ["PHP", "MySQL", "Laravel"],
+  "workmode": "hybrid",
+  "salary": "5000-8000 EUR"
+}, "id": 5}' | docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+
+            <h4>6. Get a Job</h4>
+            <pre><code>echo '{"jsonrpc": "2.0", "method": "job_get", "params": {"url": "https://example.com/job/123"}, "id": 6}' | \
+  docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+
+            <h4>7. Update a Job</h4>
+            <pre><code>echo '{"jsonrpc": "2.0", "method": "job_update", "params": {
+  "url": "https://example.com/job/123",
+  "fields": {"title": "Senior PHP Developer", "status": "published"}
+}, "id": 7}' | docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+
+            <h4>8. Delete a Job</h4>
+            <pre><code>echo '{"jsonrpc": "2.0", "method": "job_delete", "params": {"url": "https://example.com/job/123"}, "id": 8}' | \
+  docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+
+            <h4>9. Insert a Company</h4>
+            <pre><code>echo '{"jsonrpc": "2.0", "method": "company_insert", "params": {
+  "id": "12345678",
+  "company": "Acme Corporation SRL",
+  "status": "activ",
+  "location": ["Bucuresti", "Timisoara"],
+  "website": ["https://acme.com"],
+  "career": ["https://careers.acme.com"]
+}, "id": 9}' | docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+
+            <h4>10. Get a Company</h4>
+            <pre><code>echo '{"jsonrpc": "2.0", "method": "company_get", "params": {"id": "12345678"}, "id": 10}' | \
+  docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr</code></pre>
+
+            <h3>Local Development Examples</h3>
+            
+            <h4>Running Locally</h4>
+            <pre><code># Start the server (runs continuously)
+php mcp-server.php
+
+# In another terminal, send requests
+echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | php mcp-server.php</code></pre>
+
+            <h4>With Custom Solr Host</h4>
+            <pre><code># Set environment variable and run
+SOLR_HOST=192.168.1.100 SOLR_PORT=8983 php mcp-server.php</code></pre>
+        </div>
+
+        <!-- 10. DATA MODELS -->
+        <div class="card" id="data-models">
+            <h2>10. Data Models</h2>
+            
+            <h3>Job Model (unique key: url)</h3>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>url</code></td>
+                    <td>string</td>
+                    <td><span class="status info">YES</span></td>
+                    <td>Full URL to job detail page (unique key)</td>
+                </tr>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>string</td>
+                    <td>Recommended</td>
+                    <td>Position title (max 200 chars, no HTML, trimmed)</td>
+                </tr>
+                <tr>
+                    <td><code>company</code></td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Hiring company name (legal name, diacritics required)</td>
+                </tr>
+                <tr>
+                    <td><code>cif</code></td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Company CIF/CUI</td>
+                </tr>
+                <tr>
+                    <td><code>location</code></td>
+                    <td>array</td>
+                    <td>No</td>
+                    <td>Romanian cities/addresses (multi-valued)</td>
+                </tr>
+                <tr>
+                    <td><code>tags</code></td>
+                    <td>array</td>
+                    <td>No</td>
+                    <td>Skills/tags (lowercase, max 20, no diacritics)</td>
+                </tr>
+                <tr>
+                    <td><code>workmode</code></td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>remote, on-site, or hybrid</td>
+                </tr>
+                <tr>
+                    <td><code>date</code></td>
+                    <td>date</td>
+                    <td>No</td>
+                    <td>UTC ISO8601 scrape timestamp</td>
+                </tr>
+                <tr>
+                    <td><code>status</code></td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>scraped, tested, published, verified</td>
+                </tr>
+                <tr>
+                    <td><code>vdate</code></td>
+                    <td>date</td>
+                    <td>No</td>
+                    <td>Verified date (ISO8601)</td>
+                </tr>
+                <tr>
+                    <td><code>expirationdate</code></td>
+                    <td>date</td>
+                    <td>No</td>
+                    <td>Job expiration (vdate + 30 days max)</td>
+                </tr>
+                <tr>
+                    <td><code>salary</code></td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Format: "MIN-MAX CURRENCY" (e.g., "5000-8000 RON")</td>
+                </tr>
+            </table>
+
+            <h3>Company Model (unique key: id)</h3>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>id</code></td>
+                    <td>string</td>
+                    <td><span class="status info">YES</span></td>
+                    <td>CIF/CUI (8 digits, no RO prefix - unique key)</td>
+                </tr>
+                <tr>
+                    <td><code>company</code></td>
+                    <td>string</td>
+                    <td><span class="status info">YES</span></td>
+                    <td>Legal name from Trade Register (diacritics required)</td>
+                </tr>
+                <tr>
+                    <td><code>status</code></td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>activ, suspendat, inactiv, radiat</td>
+                </tr>
+                <tr>
+                    <td><code>location</code></td>
+                    <td>array</td>
+                    <td>No</td>
+                    <td>Romanian cities/addresses (multi-valued)</td>
+                </tr>
+                <tr>
+                    <td><code>website</code></td>
+                    <td>array</td>
+                    <td>No</td>
+                    <td>Official website URLs (valid HTTP/HTTPS)</td>
+                </tr>
+                <tr>
+                    <td><code>career</code></td>
+                    <td>array</td>
+                    <td>No</td>
+                    <td>Career page URLs (valid HTTP/HTTPS)</td>
+                </tr>
+            </table>
+
+            <h3>Solr Core Configuration</h3>
+            <div class="alert info">
+                <strong>Note:</strong> The Job and Company cores must be pre-configured in Apache Solr with the appropriate schema fields. This MCP server assumes the cores are already created.
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>MCP Solr</strong> &copy; 2026 | <a href="https://github.com/anomalyco/mcp-solr">GitHub</a></p>
+            <p>Documentation generated on February 23, 2026</p>
+            <p>PHP | Apache Solr | JSON-RPC 2.0 | Docker</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -42,7 +42,7 @@ echo "\n=== MCP Solr Company Tests ===\n\n";
 
 $testCompany = [
     'id' => 'TEST' . time(),
-    'name' => 'Test Company SRL',
+    'company' => 'Test Company SRL',
     'cif' => 'TEST' . time(),
     'address' => 'Bucuresti, Romania',
     'website' => 'https://example.com',
@@ -75,10 +75,10 @@ runTest('company_select - Select all companies', function() {
 });
 
 runTest('company_update - Update company fields', function() use ($testCompany) {
-    $result = company_update($testCompany['id'], ['name' => 'Updated Test Company']);
+    $result = company_update($testCompany['id'], ['company' => 'Updated Test Company']);
     if (isset($result['responseHeader']['status']) && $result['responseHeader']['status'] === 0) {
         $updated = company_get($testCompany['id']);
-        if ($updated['name'] === 'Updated Test Company') {
+        if ($updated['company'] === 'Updated Test Company') {
             return true;
         }
         return ['reason' => 'Name not updated'];

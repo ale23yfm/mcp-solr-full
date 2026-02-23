@@ -419,8 +419,10 @@ function company_insert($data)
         'add' => ['doc' => $doc, 'boost' => 1, 'overwrite' => true, 'commitWithin' => 1000],
     ];
     
-    // Execute POST request to /solr/company/update endpoint
-    return solr_request('company', 'POST', '/update', $payload);
+    $result = solr_request('company', 'POST', '/update', $payload);
+    solr_request('company', 'POST', '/update', null, true);
+    
+    return $result;
 }
 
 
