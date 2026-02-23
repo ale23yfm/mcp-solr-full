@@ -98,6 +98,18 @@ runTest('company_delete - Delete the test company', function() use ($testCompany
     return ['reason' => json_encode($result)];
 });
 
+runTest('cleanup - Delete all TEST prefixed companies', function() {
+    $result = company_select('id:TEST*', 0, 100);
+    if (empty($result['response']['docs'])) {
+        return true;
+    }
+    $ids = array_column($result['response']['docs'], 'id');
+    foreach ($ids as $id) {
+        company_delete($id);
+    }
+    return true;
+});
+
 echo "\n=== Results ===\n";
 echo "Passed: {$testResults['passed']}\n";
 echo "Failed: {$testResults['failed']}\n";

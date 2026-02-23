@@ -45,7 +45,7 @@ $testJob = [
     'title' => 'PHP Developer Test',
     'company' => 'Test Company',
     'location' => ['Bucuresti'],
-    'tags' => ['PHP', 'MySQL'],
+    'tags' => ['test-data', 'PHP', 'MySQL'],
     'workmode' => 'hybrid',
     'salary' => '5000-8000',
     'description' => 'Test job description',
@@ -106,6 +106,18 @@ runTest('job_delete - Delete the test job', function() use ($testJob) {
         return ['reason' => 'Job still exists after delete'];
     }
     return ['reason' => json_encode($result)];
+});
+
+runTest('cleanup - Delete all test-data tagged jobs', function() {
+    $result = job_select('tags:test-data', 0, 100);
+    if (empty($result['response']['docs'])) {
+        return true;
+    }
+    $urls = array_column($result['response']['docs'], 'url');
+    foreach ($urls as $url) {
+        job_delete($url);
+    }
+    return true;
 });
 
 echo "\n=== Results ===\n";

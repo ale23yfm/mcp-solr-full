@@ -8,29 +8,30 @@
  * No OOP - pure procedural PHP code
  */
 
+// Load configuration from config.php
+if (file_exists(__DIR__ . '/../config.php')) {
+    require_once __DIR__ . '/../config.php';
+}
+
+
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
 /**
  * Solr connection configuration
- * Reads from environment variables with fallback defaults
+ * Reads from environment variables (must be set in config.php or environment)
  */
 
-// Solr server hostname (default: localhost)
 define('SOLR_HOST', getenv('SOLR_HOST') ?: 'localhost');
-
-// Solr server port (default: 8983 - standard Solr port)
 define('SOLR_PORT', getenv('SOLR_PORT') ?: '8983');
-
-// Solr username for authentication (default: solr)
-define('SOLR_USER', getenv('SOLR_USER') ?: 'solr');
-
-// Solr password for authentication (default: SolrRocks)
-define('SOLR_PASS', getenv('SOLR_PASS') ?: 'SolrRocks');
-
-// HTTP or HTTPS protocol (default: http)
+define('SOLR_USER', getenv('SOLR_USER'));
+define('SOLR_PASS', getenv('SOLR_PASS'));
 define('SOLR_SCHEME', getenv('SOLR_SCHEME') ?: 'http');
+
+if (empty(SOLR_USER) || empty(SOLR_PASS)) {
+    die('Error: SOLR_USER and SOLR_PASS must be set in config.php or environment variables.' . PHP_EOL);
+}
 
 
 // ============================================================================
@@ -50,15 +51,10 @@ define('SOLR_SCHEME', getenv('SOLR_SCHEME') ?: 'http');
  * @param array|null $data Optional data to send in POST requests
  * @return array           Response data or error array
  */
-function solr_request($core, $method, $endpoint, $data = null, $commit = false)
+function solr_request($core, $method, $endpoint, $data = null)
 {
     // Build the full URL: scheme://host:port/solr/core/endpoint
     $url = SOLR_SCHEME . '://' . SOLR_HOST . ':' . SOLR_PORT . '/solr/' . $core . $endpoint;
-    
-    // Add commit parameter if requested
-    if ($commit) {
-        $url .= (strpos($url, '?') !== false ? '&' : '?') . 'commit=true';
-    }
     
     // Initialize cURL handle for HTTP requests
     $ch = curl_init();
@@ -242,7 +238,6 @@ function job_insert($data)
     ];
     
     $result = solr_request('job', 'POST', '/update', $payload);
-    solr_request('job', 'POST', '/update', null, true);
     
     return $result;
 }
@@ -282,9 +277,6 @@ function job_delete($url)
     // Execute POST request to /solr/job/update endpoint
     $result = solr_request('job', 'POST', '/update', $payload);
     
-    // Commit after delete
-    solr_request('job', 'POST', '/update', null, true);
-    
     return $result;
 }
 
@@ -315,7 +307,6 @@ function job_update($url, $fields)
     ];
     
     $result = solr_request('job', 'POST', '/update', $payload);
-    solr_request('job', 'POST', '/update', null, true);
     
     return $result;
 }
@@ -420,7 +411,6 @@ function company_insert($data)
     ];
     
     $result = solr_request('company', 'POST', '/update', $payload);
-    solr_request('company', 'POST', '/update', null, true);
     
     return $result;
 }
@@ -456,7 +446,6 @@ function company_delete($id)
     ];
     
     $result = solr_request('company', 'POST', '/update', $payload);
-    solr_request('company', 'POST', '/update', null, true);
     
     return $result;
 }
@@ -487,7 +476,6 @@ function company_update($id, $fields)
     ];
     
     $result = solr_request('company', 'POST', '/update', $payload);
-    solr_request('company', 'POST', '/update', null, true);
     
     return $result;
 }

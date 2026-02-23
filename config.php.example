@@ -1,0 +1,15 @@
+<?php
+/**
+ * MCP Solr Configuration Example
+ * 
+ * Copy this file to config.php and fill in your values:
+ * cp config.php.example config.php
+ * 
+ * Then edit config.php with your Solr credentials.
+ */
+
+putenv('SOLR_HOST=YOUR_HOST');
+putenv('SOLR_PORT=8983');
+putenv('SOLR_USER=YOUR_USERNAME');
+putenv('SOLR_PASS=YOUR_PASSWORD');
+putenv('SOLR_SCHEME=http');

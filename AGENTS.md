@@ -27,12 +27,17 @@ docker ps | grep solr
 # Start Solr if not running
 docker start peviitor-solr
 
+# Copy config and set credentials
+cp config.php.example config.php
+# Edit config.php with your Solr credentials
+
 # Build Docker image
 docker build -t mcp-solr .
 
 # Run MCP server (requires Solr to be running)
 # IMPORTANT: Use --network host and SOLR_HOST=127.0.0.1 to connect to localhost Solr
-docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+# Replace YOUR_USER and YOUR_PASS with your Solr credentials
+docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=YOUR_USER -e SOLR_PASS=YOUR_PASS mcp-solr
 
 # Run locally (requires PHP 8.2+)
 php mcp-server.php
@@ -43,12 +48,39 @@ php -l mcp-server.php
 ```
 
 ## Configuration
-Environment variables:
+
+### Using config.php (Recommended)
+
+1. Copy the example config file:
+```bash
+cp config.php.example config.php
+```
+
+2. Edit `config.php` with your Solr credentials
+
+3. The file is in `.gitignore` - credentials are never committed
+
+### Always Use MCP Server
+
+**IMPORTANT:** All Solr operations must go through the MCP server, not direct HTTP requests.
+
+- Use `php mcp-server.php` for local development
+- Use Docker container for production: `docker run --rm -i --network host ... mcp-solr`
+- Never make direct HTTP requests to Solr from external scripts
+
+### Environment Variables
+
 - `SOLR_HOST` - Solr host (default: localhost)
 - `SOLR_PORT` - Solr port (default: 8983)
-- `SOLR_USER` - Solr username (default: solr)
-- `SOLR_PASS` - Solr password (default: SolrRocks)
+- `SOLR_USER` - Solr username (required)
+- `SOLR_PASS` - Solr password (required)
 - `SOLR_SCHEME` - http or https (default: http)
+
+### Security
+
+- Credentials are required - server fails if not set
+- Default credentials have been removed from code
+- Use `config.php` for local dev, environment variables for Docker
 
 ## Code Style Guidelines
 
@@ -105,6 +137,15 @@ src/
 
 mcp-server.php       # MCP server entry point
 Dockerfile           # PHP CLI Docker image
+config.php           # Local config (gitignored)
+config.php.example   # Config template
+test/                # Test scripts
+  ├── job_test.php
+  ├── company_test.php
+  └── run_tests.php
+opencode.json        # OpenCode MCP config
+mkdocs.yml           # GitHub Pages config
+docs/                # Documentation source
 ```
 
 ## MCP Protocol
@@ -156,7 +197,8 @@ echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | php m
 docker build -t mcp-solr .
 
 # Run with custom Solr connection (host network required for localhost)
-docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+# Replace YOUR_USER and YOUR_PASS with your Solr credentials
+docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=YOUR_USER -e SOLR_PASS=YOUR_PASS mcp-solr
 ```
 
 ### Important: Solr Must Be Running
@@ -198,3 +240,7 @@ MCP Solr connects to Solr at `127.0.0.1:8983` using Docker host network. If Solr
 - Documented test coverage (11/11 tests passing)
 - Added data models section with field specifications
 - Added usage examples with JSON-RPC request samples
+- **Security fix**: Added config.php support, removed default credentials
+- **Optimization**: Removed redundant commit HTTP requests
+- **Optimization**: Refactored tool definitions for readability
+- **Security fix**: Removed hardcoded credentials from opencode.json, config.php, README.md, and documentation

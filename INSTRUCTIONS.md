@@ -27,7 +27,15 @@ mcp-solr/
 │   └── functions.php    # All PHP functions (no OOP)
 ├── mcp-server.php       # MCP server entry point (JSON-RPC 2.0 over STDIO)
 ├── Dockerfile           # PHP CLI Docker image
+├── config.php           # Local config (gitignored)
+├── config.php.example   # Config template
 ├── opencode.json        # OpenCode MCP configuration
+├── test/                # Test scripts
+│   ├── job_test.php
+│   ├── company_test.php
+│   └── run_tests.php
+├── mkdocs.yml           # GitHub Pages configuration
+├── docs/                # Documentation source
 └── AGENTS.md           # Developer guidelines
 ```
 
@@ -85,12 +93,42 @@ mcp-solr/
 
 ## Configuration
 
-Environment variables (with defaults):
-- `SOLR_HOST` - Solr hostname (default: localhost)
-- `SOLR_PORT` - Solr port (default: 8983)
-- `SOLR_USER` - Solr username (default: solr)
-- `SOLR_PASS` - Solr password (default: SolrRocks)
-- `SOLR_SCHEME` - http or https (default: http)
+### Always Use MCP Server
+
+**IMPORTANT:** All Solr operations must go through the MCP server, not direct HTTP requests.
+
+- Use `php mcp-server.php` for local development
+- Use Docker container for production: `docker run --rm -i --network host ... mcp-solr`
+- Never make direct HTTP requests to Solr from external scripts
+
+### Using config.php
+
+1. Copy the example config file:
+```bash
+cp config.php.example config.php
+```
+
+2. Edit `config.php` with your Solr credentials:
+```php
+putenv('SOLR_HOST=your-host');
+putenv('SOLR_PORT=8983');
+putenv('SOLR_USER=your-username');
+putenv('SOLR_PASS=your-password');
+putenv('SOLR_SCHEME=http');
+```
+
+**Note:** `config.php` is in `.gitignore` - credentials are never committed.
+
+### Environment Variables
+
+### Security
+
+**IMPORTANT:** Credentials are required. The server will fail to start if `SOLR_USER` and `SOLR_PASS` are not set.
+
+- Default credentials have been removed from the code
+- Use `config.php` for local development (never committed)
+- Use environment variables for Docker production deployments
+- The server uses Basic Authentication on every Solr request
 
 ## Docker Requirements
 
@@ -111,10 +149,11 @@ docker ps | grep solr
 docker start peviitor-solr
 
 # Run with Docker (IMPORTANT: use -i flag for interactive STDIN, --network host to connect to localhost)
-docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+# Replace YOUR_USER and YOUR_PASS with your Solr credentials
+docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=YOUR_USER -e SOLR_PASS=YOUR_PASS mcp-solr
 
 # Test with JSON-RPC request
-echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr
+echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_USER=YOUR_USER -e SOLR_PASS=YOUR_PASS mcp-solr
 ```
 
 ### Important Notes
@@ -146,14 +185,14 @@ The project includes `opencode.json` with MCP configuration:
   "mcp": {
     "mcp-solr": {
       "type": "local",
-      "command": ["docker", "run", "--rm", "-i", "--network", "host", "-e", "SOLR_HOST=127.0.0.1", "-e", "SOLR_PORT=8983", "-e", "SOLR_USER=solr", "-e", "SOLR_PASS=SolrRocks", "mcp-solr"],
+      "command": ["docker", "run", "--rm", "-i", "--network", "host", "-e", "SOLR_HOST=127.0.0.1", "-e", "SOLR_PORT=8983", "-e", "SOLR_USER=YOUR_USER", "-e", "SOLR_PASS=YOUR_PASS", "mcp-solr"],
       "enabled": true
     }
   }
 }
 ```
 
-Note: `chrome-devtools` is defined globally in `~/.config/opencode/opencode.json` and does not need to be repeated here.
+Note: Update `SOLR_USER` and `SOLR_PASS` with your actual credentials.
 
 ### Custom Commands
 
@@ -206,16 +245,6 @@ mkdocs serve
 
 ## Changelog
 
-### 2026-02-22
-- Created `opencode.json` with MCP configuration for mcp-solr
-- Updated `.opencode/commands/instructions.md` to use `opencode/big-pickle` model
-- Added Docker requirements section to INSTRUCTIONS.md and AGENTS.md
-- Started Solr container (`peviitor-solr`) for MCP connectivity
-- `chrome-devtools` configured globally in `~/.config/opencode/opencode.json`
-- Added Documentation Policy section
-- Added GitHub Pages deployment with MkDocs
-- Fixed MCP error -32601 by using `--network host` and `SOLR_HOST=127.0.0.1`
-
 ### 2026-02-23
 - Generated comprehensive HTML documentation in docs/index.html
 - Added detailed code review section with function analysis
@@ -223,3 +252,9 @@ mkdocs serve
 - Documented test coverage (11/11 tests passing)
 - Added data models section with field specifications
 - Added usage examples with JSON-RPC request samples
+- **Security fix**: Added config.php support, removed default credentials
+- Server now fails if credentials are not provided
+- **Optimization**: Removed redundant commit HTTP requests (was 2x per write operation)
+- **Optimization**: Refactored tool definitions in mcp-server.php for readability
+- **Fix**: Added JSON error handling in MCP responses
+- **Fix**: Updated opencode.json with placeholder credentials

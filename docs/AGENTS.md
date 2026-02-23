@@ -32,7 +32,7 @@ docker build -t mcp-solr .
 
 # Run MCP server (requires Solr to be running)
 # IMPORTANT: Use --network host and SOLR_HOST=127.0.0.1 to connect to localhost Solr
-docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=YOUR_USER -e SOLR_PASS=YOUR_PASS mcp-solr
 
 # Run locally (requires PHP 8.2+)
 php mcp-server.php
@@ -43,11 +43,31 @@ php -l mcp-server.php
 ```
 
 ## Configuration
+
+### Always Use MCP Server
+
+**IMPORTANT:** All Solr operations must go through the MCP server, not direct HTTP requests.
+
+- Use `php mcp-server.php` for local development
+- Use Docker container for production: `docker run --rm -i --network host ... mcp-solr`
+- Never make direct HTTP requests to Solr from external scripts
+
+### Using config.php
+
+1. Copy the example config file:
+```bash
+cp config.php.example config.php
+```
+
+2. Edit `config.php` with your Solr credentials
+
+3. The file is in `.gitignore` - credentials are never committed
+
 Environment variables:
 - `SOLR_HOST` - Solr host (default: localhost)
 - `SOLR_PORT` - Solr port (default: 8983)
-- `SOLR_USER` - Solr username (default: solr)
-- `SOLR_PASS` - Solr password (default: SolrRocks)
+- `SOLR_USER` - Solr username (required)
+- `SOLR_PASS` - Solr password (required)
 - `SOLR_SCHEME` - http or https (default: http)
 
 ## Code Style Guidelines
@@ -156,7 +176,8 @@ echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | php m
 docker build -t mcp-solr .
 
 # Run with custom Solr connection (host network required for localhost)
-docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+# Replace YOUR_USER and YOUR_PASS with your Solr credentials
+docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=YOUR_USER -e SOLR_PASS=YOUR_PASS mcp-solr
 ```
 
 ### Important: Solr Must Be Running

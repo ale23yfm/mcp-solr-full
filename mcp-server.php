@@ -13,12 +13,9 @@
  * The server reads JSON-RPC requests from STDIN and writes responses to STDOUT.
  * Each request must be a JSON object with 'method' and 'params' fields.
  * 
- * Environment Variables:
- *   SOLR_HOST     - Solr hostname (default: localhost)
- *   SOLR_PORT     - Solr port (default: 8983)
- *   SOLR_USER     - Solr username (default: solr)
- *   SOLR_PASS     - Solr password (default: SolrRocks)
- *   SOLR_SCHEME   - http or https (default: http)
+ * Configuration:
+ *   Set SOLR_HOST, SOLR_PORT, SOLR_USER, SOLR_PASS, SOLR_SCHEME
+ *   in config.php or as environment variables.
  */
 
 // Include the functions library that contains all Solr operations
@@ -64,10 +61,13 @@ function mcp_read_json()
  */
 function mcp_response($result)
 {
-    // Encode the result as JSON and output with newline
-    echo json_encode($result) . "\n";
+    $json = json_encode($result);
     
-    // Flush output buffer to ensure data is sent immediately
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $json = json_encode(['error' => 'JSON encoding error: ' . json_last_error_msg()]);
+    }
+    
+    echo $json . "\n";
     fflush(STDOUT);
 }
 
@@ -112,7 +112,6 @@ $methods = [
     },
     
     'tools/list' => function($params) {
-        global $methods;
         $tools = [];
         
         $toolDefinitions = [
@@ -132,42 +131,69 @@ $methods = [
             'company_get' => 'Get a company by id',
         ];
         
+        $insertSchema = [
+            'url' => ['type' => 'string', 'description' => 'Job URL (unique key)'],
+            'title' => ['type' => 'string', 'description' => 'Job title'],
+            'company' => ['type' => 'string', 'description' => 'Company name'],
+            'location' => ['type' => 'array', 'description' => 'Job locations'],
+            'tags' => ['type' => 'array', 'description' => 'Skill tags'],
+            'workmode' => ['type' => 'string', 'description' => 'Work mode (remote, on-site, hybrid)'],
+            'salary' => ['type' => 'string', 'description' => 'Salary range'],
+            'description' => ['type' => 'string', 'description' => 'Job description'],
+        ];
+        
+        $deleteSchema = [
+            'url' => ['type' => 'string', 'description' => 'Job URL'],
+        ];
+        
+        $idSchema = [
+            'id' => ['type' => 'string', 'description' => 'Company ID/CIF'],
+        ];
+        
+        $updateSchema = [
+            'url' => ['type' => 'string', 'description' => 'Job URL'],
+            'id' => ['type' => 'string', 'description' => 'Company ID'],
+            'fields' => ['type' => 'object', 'description' => 'Fields to update'],
+        ];
+        
+        $defaultSchema = [
+            'query' => ['type' => 'string', 'description' => 'Search query'],
+            'term' => ['type' => 'string', 'description' => 'Search term'],
+            'start' => ['type' => 'integer', 'description' => 'Start index'],
+            'rows' => ['type' => 'integer', 'description' => 'Number of results'],
+            'offset' => ['type' => 'integer', 'description' => 'Offset'],
+            'limit' => ['type' => 'integer', 'description' => 'Limit results'],
+            'filters' => ['type' => 'object', 'description' => 'Filter criteria'],
+            'status' => ['type' => 'string', 'description' => 'Job/Company status'],
+            'company' => ['type' => 'string', 'description' => 'Company name'],
+            'workmode' => ['type' => 'string', 'description' => 'Work mode'],
+            'location' => ['type' => 'string', 'description' => 'Location'],
+        ];
+        
+        $insertMethods = ['job_insert', 'job_index', 'company_insert', 'company_index'];
+        $deleteMethods = ['job_delete', 'job_get'];
+        $idMethods = ['company_delete', 'company_get'];
+        $updateMethods = ['job_update', 'company_update'];
+        
         foreach ($toolDefinitions as $name => $description) {
+            if (in_array($name, $insertMethods)) {
+                $schema = $insertSchema;
+            } elseif (in_array($name, $deleteMethods)) {
+                $schema = $deleteSchema;
+            } elseif (in_array($name, $idMethods)) {
+                $schema = $idSchema;
+            } elseif (in_array($name, $updateMethods)) {
+                $schema = $updateSchema;
+            } else {
+                $schema = $defaultSchema;
+            }
+            
             $tools[] = [
                 'name' => $name,
                 'description' => $description,
                 'inputSchema' => [
                     'type' => 'object',
-                    'properties' => ($name === 'job_insert' || $name === 'job_index' || $name === 'company_insert' || $name === 'company_index') ? [
-                        'url' => ['type' => 'string', 'description' => 'Job URL (unique key)'],
-                        'title' => ['type' => 'string', 'description' => 'Job title'],
-                        'company' => ['type' => 'string', 'description' => 'Company name'],
-                        'location' => ['type' => 'array', 'description' => 'Job locations'],
-                        'tags' => ['type' => 'array', 'description' => 'Skill tags'],
-                        'workmode' => ['type' => 'string', 'description' => 'Work mode (remote, on-site, hybrid)'],
-                        'salary' => ['type' => 'string', 'description' => 'Salary range'],
-                        'description' => ['type' => 'string', 'description' => 'Job description'],
-                    ] : (in_array($name, ['job_delete', 'job_get']) ? [
-                        'url' => ['type' => 'string', 'description' => 'Job URL'],
-                    ] : (in_array($name, ['company_delete', 'company_get']) ? [
-                        'id' => ['type' => 'string', 'description' => 'Company ID/CIF'],
-                    ] : (in_array($name, ['job_update', 'company_update']) ? [
-                        'url' => ['type' => 'string', 'description' => 'Job URL'],
-                        'id' => ['type' => 'string', 'description' => 'Company ID'],
-                        'fields' => ['type' => 'object', 'description' => 'Fields to update'],
-                    ] : [
-                        'query' => ['type' => 'string', 'description' => 'Search query'],
-                        'term' => ['type' => 'string', 'description' => 'Search term'],
-                        'start' => ['type' => 'integer', 'description' => 'Start index'],
-                        'rows' => ['type' => 'integer', 'description' => 'Number of results'],
-                        'offset' => ['type' => 'integer', 'description' => 'Offset'],
-                        'limit' => ['type' => 'integer', 'description' => 'Limit results'],
-                        'filters' => ['type' => 'object', 'description' => 'Filter criteria'],
-                        'status' => ['type' => 'string', 'description' => 'Job/Company status'],
-                        'company' => ['type' => 'string', 'description' => 'Company name'],
-                        'workmode' => ['type' => 'string', 'description' => 'Work mode'],
-                        'location' => ['type' => 'string', 'description' => 'Location'],
-                    ]))),
+                    'properties' => $schema,
                 ],
             ];
         }
@@ -178,6 +204,22 @@ $methods = [
     'ping' => function($params) {
         return [];
     },
+    
+    'tools/call' => function($params) use (&$methods) {
+        $name = $params['name'] ?? null;
+        $arguments = $params['arguments'] ?? [];
+        
+        if (!$name) {
+            return ['error' => 'Tool name is required'];
+        }
+        
+        if (!isset($methods[$name])) {
+            return ['error' => 'Tool not found: ' . $name];
+        }
+        
+        return $methods[$name]($arguments);
+    },
+    
     /**
      * Search for jobs in Solr
      * 

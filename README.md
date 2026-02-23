@@ -23,8 +23,8 @@ MCP (Model Context Protocol) server for Apache Solr in PHP. Manages Job and Comp
 # Build
 docker build -t mcp-solr .
 
-# Run
-docker run -e SOLR_HOST=solr -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+# Run (set your own credentials)
+docker run -e SOLR_HOST=solr -e SOLR_PORT=8983 -e SOLR_USER=your_user -e SOLR_PASS=your_pass mcp-solr
 ```
 
 ### Local
@@ -39,8 +39,8 @@ php mcp-server.php
 |----------|---------|-------------|
 | SOLR_HOST | localhost | Solr hostname |
 | SOLR_PORT | 8983 | Solr port |
-| SOLR_USER | solr | Username |
-| SOLR_PASS | SolrRocks | Password |
+| SOLR_USER | (required) | Username |
+| SOLR_PASS | (required) | Password |
 | SOLR_SCHEME | http | http or https |
 
 ## Available Methods

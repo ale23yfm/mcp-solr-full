@@ -85,11 +85,39 @@ mcp-solr/
 
 ## Configuration
 
+### Always Use MCP Server
+
+**IMPORTANT:** All Solr operations must go through the MCP server, not direct HTTP requests.
+
+- Use `php mcp-server.php` for local development
+- Use Docker container for production: `docker run --rm -i --network host ... mcp-solr`
+- Never make direct HTTP requests to Solr from external scripts
+
+### Using config.php
+
+1. Copy the example config file:
+```bash
+cp config.php.example config.php
+```
+
+2. Edit `config.php` with your Solr credentials:
+```php
+putenv('SOLR_HOST=your-host');
+putenv('SOLR_PORT=8983');
+putenv('SOLR_USER=your-username');
+putenv('SOLR_PASS=your-password');
+putenv('SOLR_SCHEME=http');
+```
+
+**Note:** `config.php` is in `.gitignore` - credentials are never committed.
+
+### Environment Variables
+
 Environment variables (with defaults):
 - `SOLR_HOST` - Solr hostname (default: localhost)
 - `SOLR_PORT` - Solr port (default: 8983)
-- `SOLR_USER` - Solr username (default: solr)
-- `SOLR_PASS` - Solr password (default: SolrRocks)
+- `SOLR_USER` - Solr username (required)
+- `SOLR_PASS` - Solr password (required)
 - `SOLR_SCHEME` - http or https (default: http)
 
 ## Docker Requirements
@@ -111,10 +139,11 @@ docker ps | grep solr
 docker start peviitor-solr
 
 # Run with Docker (IMPORTANT: use -i flag for interactive STDIN, --network host to connect to localhost)
-docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=solr -e SOLR_PASS=SolrRocks mcp-solr
+# Replace YOUR_USER and YOUR_PASS with your Solr credentials
+docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_PORT=8983 -e SOLR_USER=YOUR_USER -e SOLR_PASS=YOUR_PASS mcp-solr
 
 # Test with JSON-RPC request
-echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 mcp-solr
+echo '{"jsonrpc": "2.0", "method": "job_select", "params": {}, "id": 1}' | docker run --rm -i --network host -e SOLR_HOST=127.0.0.1 -e SOLR_USER=YOUR_USER -e SOLR_PASS=YOUR_PASS mcp-solr
 ```
 
 ### Important Notes
@@ -146,12 +175,14 @@ The project includes `opencode.json` with MCP configuration:
   "mcp": {
     "mcp-solr": {
       "type": "local",
-      "command": ["docker", "run", "--rm", "-i", "--network", "host", "-e", "SOLR_HOST=127.0.0.1", "-e", "SOLR_PORT=8983", "-e", "SOLR_USER=solr", "-e", "SOLR_PASS=SolrRocks", "mcp-solr"],
+      "command": ["docker", "run", "--rm", "-i", "--network", "host", "-e", "SOLR_HOST=127.0.0.1", "-e", "SOLR_PORT=8983", "-e", "SOLR_USER=YOUR_USER", "-e", "SOLR_PASS=YOUR_PASS", "mcp-solr"],
       "enabled": true
     }
   }
 }
 ```
+
+Note: Replace YOUR_USER and YOUR_PASS with your actual Solr credentials.
 
 Note: `chrome-devtools` is defined globally in `~/.config/opencode/opencode.json` and does not need to be repeated here.
 
